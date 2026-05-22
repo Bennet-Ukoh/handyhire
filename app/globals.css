@@ -1,26 +1,190 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #FDFAF5;
+  --foreground: #1C1917;
+  --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-cream: #FDFAF5;
+  --color-cream-mid: #F5F0E8;
+  --color-cream-dark: #EDE9E3;
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-display: var(--font-dm-serif);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+}
+
+*:focus-visible {
+  outline: 2px solid #d97706;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ─────────────────────────────────────────
+   KEYFRAMES
+───────────────────────────────────────── */
+
+@keyframes hh-online-ring {
+  0%   { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.65); }
+  70%  { box-shadow: 0 0 0 7px rgba(52, 211, 153, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0); }
+}
+
+@keyframes hh-float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-11px); }
+}
+
+@keyframes hh-float-b {
+  0%, 100% { transform: translateY(-5px); }
+  50%       { transform: translateY(7px); }
+}
+
+@keyframes hh-blob {
+  0%, 100% { transform: translate(0px, 0px) scale(1); }
+  30%       { transform: translate(22px, -16px) scale(1.05); }
+  60%       { transform: translate(-14px, 11px) scale(0.97); }
+  80%       { transform: translate(8px, -6px) scale(1.02); }
+}
+
+@keyframes hh-blob-b {
+  0%, 100% { transform: translate(0px, 0px) scale(1); }
+  35%       { transform: translate(-20px, 14px) scale(1.04); }
+  70%       { transform: translate(16px, -10px) scale(0.96); }
+}
+
+@keyframes hh-fade-up {
+  from { opacity: 0; transform: translateY(22px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes hh-shimmer {
+  0%   { background-position: 200% center; }
+  100% { background-position: -200% center; }
+}
+
+/* ─────────────────────────────────────────
+   ANIMATION UTILITIES
+───────────────────────────────────────── */
+
+.hh-float   { animation: hh-float   5.5s ease-in-out infinite; }
+.hh-float-b { animation: hh-float-b 7s   ease-in-out infinite; }
+.hh-blob    { animation: hh-blob    22s  ease-in-out infinite; }
+.hh-blob-b  { animation: hh-blob-b  28s  ease-in-out infinite; }
+
+/* Staggered hero entrance — animation-fill-mode: both keeps element invisible before play */
+.hh-enter   { animation: hh-fade-up 0.75s var(--ease-spring) both; }
+.hh-enter-2 { animation: hh-fade-up 0.75s 0.08s var(--ease-spring) both; }
+.hh-enter-3 { animation: hh-fade-up 0.75s 0.18s var(--ease-spring) both; }
+.hh-enter-4 { animation: hh-fade-up 0.75s 0.28s var(--ease-spring) both; }
+.hh-enter-5 { animation: hh-fade-up 0.75s 0.38s var(--ease-spring) both; }
+.hh-enter-6 { animation: hh-fade-up 0.75s 0.50s var(--ease-spring) both; }
+
+/* Shimmer text — for accent phrases */
+.hh-shimmer-text {
+  background: linear-gradient(
+    90deg,
+    #92400e 0%,
+    #d97706 20%,
+    #fbbf24 40%,
+    #fef9ee 55%,
+    #fbbf24 70%,
+    #d97706 85%,
+    #92400e 100%
+  );
+  background-size: 250% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: hh-shimmer 5s linear infinite;
+}
+
+/* ─────────────────────────────────────────
+   SCROLL REVEAL (toggled by IntersectionObserver)
+───────────────────────────────────────── */
+
+.hh-reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition:
+    opacity  0.65s var(--ease-spring),
+    transform 0.65s var(--ease-spring);
+}
+
+.hh-reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ─────────────────────────────────────────
+   ONLINE PULSE
+───────────────────────────────────────── */
+
+.online-pulse {
+  animation: hh-online-ring 2.4s ease infinite;
+}
+
+/* ─────────────────────────────────────────
+   SKIP LINK
+───────────────────────────────────────── */
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 1rem;
+  padding: 0.5rem 1rem;
+  background: #1c1917;
+  color: #fafaf7;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  z-index: 100;
+}
+.skip-link:focus {
+  left: 1rem;
+}
+
+/* ─────────────────────────────────────────
+   REDUCED MOTION
+───────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .hh-float,
+  .hh-float-b,
+  .hh-blob,
+  .hh-blob-b,
+  .online-pulse {
+    animation: none !important;
+  }
+
+  .hh-enter,
+  .hh-enter-2,
+  .hh-enter-3,
+  .hh-enter-4,
+  .hh-enter-5,
+  .hh-enter-6 {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .hh-shimmer-text {
+    animation: none !important;
+    -webkit-text-fill-color: #d97706;
+  }
+
+  .hh-reveal {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
 }

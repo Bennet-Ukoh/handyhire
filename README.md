@@ -1,36 +1,116 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# HandyHire
 
-## Getting Started
+> A modern marketplace connecting clients with verified skilled workers across Nigeria.
+> Clients post jobs, verified workers quote, and both parties chat and transact — all in one platform.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Repository structure
+
+```
+handyhire/
+├── frontend/        Next.js 15 (App Router) — client, worker, and admin UIs
+├── backend/         Node.js API server (in progress)
+├── shared/          TypeScript types and API contracts shared across apps
+├── .github/         CI/CD workflows and collaboration config
+└── README.md        You are here
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Quick start
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Frontend
 
-## Learn More
+```bash
+cd frontend
+npm install
+npm run dev          # http://localhost:3000
+```
 
-To learn more about Next.js, take a look at the following resources:
+Test credentials:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+| Role    | Email               | Password  |
+|---------|---------------------|-----------|
+| Client  | client@test.com     | password  |
+| Worker  | worker@test.com     | password  |
+| Admin   | admin@test.com      | password  |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Backend
 
-## Deploy on Vercel
+```bash
+cd backend
+# Coming soon — see backend/README.md
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Tech stack
+
+| Layer      | Technology                                   |
+|------------|----------------------------------------------|
+| Frontend   | Next.js 15, React 19, Tailwind CSS v4, Zod   |
+| Backend    | Node.js (planned: Express or Fastify)        |
+| Database   | PostgreSQL via Prisma (planned)              |
+| Auth       | HTTP-only cookie sessions → JWT (planned)    |
+| Types      | TypeScript (strict), shared via `/shared`    |
+| CI/CD      | GitHub Actions                               |
+
+---
+
+## Branching strategy
+
+| Branch              | Purpose                                    |
+|---------------------|--------------------------------------------|
+| `main`              | Production-ready code — protected          |
+| `develop`           | Integration branch — protected             |
+| `feature/*`         | New features, branched from `develop`      |
+| `fix/*`             | Bug fixes                                  |
+| `chore/*`           | Deps, config, non-functional changes       |
+
+PRs into `main` and `develop` require at least **1 approving review**.
+Direct pushes to `main` and `develop` are blocked.
+
+---
+
+## Team permissions (GitHub)
+
+| Role       | Access                             | Who                          |
+|------------|------------------------------------|------------------------------|
+| Admin      | Full repo control                  | Repo owner                   |
+| Maintain   | Manage branches, releases          | Tech leads                   |
+| Write      | Push feature branches, open PRs    | Developers                   |
+| Triage     | Label/assign issues, close PRs     | Project managers             |
+| Read       | View code and issues               | Stakeholders, QA             |
+
+To invite a collaborator:
+```bash
+gh api repos/Bennet-Ukoh/handyhire/collaborators/USERNAME -X PUT -f permission=write
+```
+
+---
+
+## Shared types
+
+`/shared/types/api.ts` defines every request and response DTO used by both the
+frontend service layer and the backend API routes. When adding a new endpoint:
+
+1. Define the request/response types in `/shared/types/api.ts`
+2. Implement the route in `/backend`
+3. Replace the matching mock service call in `/frontend/lib/*/service.ts`
+
+---
+
+## Contributing
+
+1. Branch from `develop`: `git checkout -b feature/your-feature develop`
+2. Make changes, run `npm run build` in the affected app to check for TS errors
+3. Open a PR targeting `develop`
+4. Get 1 review, then merge with **Squash and merge**
+5. `develop` to `main` PRs are opened for releases
+
+---
+
+## License
+
+Private — all rights reserved.
