@@ -238,7 +238,7 @@ export default function JobsPanel({ jobs }: Props) {
                 {job.status === "open" && job.quotesCount > 0 && (
                   <div className="mt-2.5">
                     <Link
-                      href={`/client/jobs/${job.id}/quotes`}
+                      href={`/client/jobs/${job.id}`}
                       className="inline-flex items-center gap-1 text-xs font-semibold text-amber-700 hover:text-amber-800 transition-colors"
                     >
                       Review quotes
