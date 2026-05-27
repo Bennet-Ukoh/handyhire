@@ -6,7 +6,7 @@ import { deriveOverallStatus } from "@/lib/worker/types";
 import type { VerificationRecord, VerificationStatus, OverallVerificationStatus } from "@/lib/worker/types";
 import NINSubmitForm from "@/components/worker/NINSubmitForm";
 import BackgroundCheckForm from "@/components/worker/BackgroundCheckForm";
-import SimulateReviewButton from "@/components/worker/SimulateReviewButton";
+import VerificationDocuments from "@/components/worker/VerificationDocuments";
 
 export const metadata: Metadata = { title: "Verification — HandyHire" };
 
@@ -28,39 +28,44 @@ const OVERALL_CONFIG: Record<
     border: "rgba(59,130,246,0.14)",
     dot:    "#3b82f6",
     text:   "Verification in progress",
-    sub:    "Our team is reviewing your documents. You'll be notified when you're cleared.",
+    sub:    "Our compliance team is reviewing your documents. You'll be notified once you're cleared.",
   },
   verified: {
     bg:     "rgba(16,185,129,0.05)",
     border: "rgba(16,185,129,0.16)",
     dot:    "#10b981",
     text:   "You're fully verified",
-    sub:    "Your identity and background have been confirmed. Your job feed is active.",
+    sub:    "Your identity and background have been confirmed by admin. Your job feed is active.",
   },
   rejected: {
     bg:     "rgba(239,68,68,0.05)",
     border: "rgba(239,68,68,0.14)",
     dot:    "#ef4444",
     text:   "Action required",
-    sub:    "One or more checks were rejected. Review the details below and resubmit.",
+    sub:    "One or more checks were rejected by our team. Review the details below and resubmit.",
   },
 };
 
-/* ── Step status display ─────────────────────────────────────────────── */
+/* ── Status display helpers ─────────────────────────────────────────── */
 
 const ACTIVE_STATUSES: VerificationStatus[] = ["pending", "in_review", "manual_review", "verified", "rejected"];
 
-function isNINReady(status: VerificationStatus): boolean {
+function isNINSubmitted(status: VerificationStatus): boolean {
   return ACTIVE_STATUSES.includes(status);
 }
 
 function WaitingState({ record, label }: { record: VerificationRecord; label: string }) {
-  const isInReview = record.status === "in_review";
-  const dot = isInReview ? "#3b82f6" : "#f59e0b";
-  const bg  = isInReview ? "rgba(59,130,246,0.06)" : "rgba(251,191,36,0.08)";
-  const border = isInReview ? "rgba(59,130,246,0.2)" : "rgba(251,191,36,0.3)";
-  const textColor = isInReview ? "#1d4ed8" : "#92400e";
-  const subColor  = isInReview ? "#3b82f6" : "#b45309";
+  const isInReview   = record.status === "in_review";
+  const isManual     = record.status === "manual_review";
+  const dot          = isInReview || isManual ? "#3b82f6" : "#f59e0b";
+  const bg           = isInReview || isManual ? "rgba(59,130,246,0.06)" : "rgba(251,191,36,0.08)";
+  const border       = isInReview || isManual ? "rgba(59,130,246,0.2)" : "rgba(251,191,36,0.3)";
+  const textColor    = isInReview || isManual ? "#1d4ed8" : "#92400e";
+  const subColor     = isInReview || isManual ? "#3b82f6" : "#b45309";
+
+  const statusLabel  = isInReview ? "is being reviewed by admin"
+    : isManual ? "has been flagged for manual review"
+    : "submitted — awaiting admin review";
 
   const formatted = record.submittedAt
     ? new Date(record.submittedAt).toLocaleDateString("en-NG", {
@@ -78,15 +83,18 @@ function WaitingState({ record, label }: { record: VerificationRecord; label: st
       <span className="w-2 h-2 rounded-full shrink-0 mt-1.5" style={{ background: dot }} />
       <div>
         <p className="text-sm font-semibold" style={{ color: textColor }}>
-          {isInReview ? `${label} is being reviewed` : `${label} submitted`}
+          {label} {statusLabel}
         </p>
-        <p className="text-xs mt-0.5" style={{ color: subColor }}>
-          {isInReview
-            ? "Our compliance team is actively reviewing your documents."
-            : formatted
-              ? `Submitted ${formatted} — review will begin shortly.`
-              : "Submitted — review will begin shortly."}
-        </p>
+        {formatted && (
+          <p className="text-xs mt-0.5" style={{ color: subColor }}>
+            Submitted {formatted}
+          </p>
+        )}
+        {(isInReview || isManual) && (
+          <p className="text-xs mt-0.5" style={{ color: subColor }}>
+            Our team is actively reviewing — you'll receive an update within 1–3 business days.
+          </p>
+        )}
       </div>
     </div>
   );
@@ -104,7 +112,7 @@ function VerifiedState({ label }: { label: string }) {
           <path d="M2 6l2.5 2.5L10 3.5" stroke="#059669" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       </span>
-      <p className="text-sm font-semibold text-emerald-800">{label} verified</p>
+      <p className="text-sm font-semibold text-emerald-800">{label} approved by admin</p>
     </div>
   );
 }
@@ -119,37 +127,53 @@ function RejectedState({ record, label }: { record: VerificationRecord; label: s
       {record.rejectionReason && (
         <p className="text-xs text-red-500">{record.rejectionReason}</p>
       )}
+      <p className="text-xs text-red-400 mt-1">
+        Please resubmit below, or contact{" "}
+        <span className="font-medium">support@handyhire.ng</span> for help.
+      </p>
     </div>
   );
 }
 
-/* ── Step card wrapper ───────────────────────────────────────────────── */
+/* ── Step card ──────────────────────────────────────────────────────── */
 
 function StepCard({
   number,
   title,
   sub,
+  complete,
   children,
 }: {
   number: number;
   title: string;
   sub: string;
+  complete?: boolean;
   children: React.ReactNode;
 }) {
   return (
     <div
       className="bg-white rounded-2xl p-6 space-y-5"
       style={{
-        border: "1px solid rgba(0,0,0,0.07)",
+        border: complete
+          ? "1px solid rgba(16,185,129,0.25)"
+          : "1px solid rgba(0,0,0,0.07)",
         boxShadow: "0 1px 3px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04)",
       }}
     >
       <div className="flex items-start gap-4">
         <span
           className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 text-xs font-bold text-white"
-          style={{ background: "linear-gradient(135deg, #d97706 0%, #b45309 100%)" }}
+          style={{
+            background: complete
+              ? "linear-gradient(135deg, #059669 0%, #047857 100%)"
+              : "linear-gradient(135deg, #d97706 0%, #b45309 100%)",
+          }}
         >
-          {number}
+          {complete ? (
+            <svg viewBox="0 0 12 12" className="w-4 h-4" fill="none" aria-hidden="true">
+              <path d="M2 6l2.5 2.5L10 3.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          ) : number}
         </span>
         <div>
           <p className="text-sm font-semibold text-stone-800">{title}</p>
@@ -171,9 +195,10 @@ export default async function VerificationPage() {
 
   const ninStatus = verification.nin.status;
   const bgStatus  = verification.backgroundCheck.status;
-  const ninReady  = isNINReady(ninStatus);
+  const ninSubmitted = isNINSubmitted(ninStatus);
 
-  const isDevMode = process.env.NODE_ENV !== "production";
+  // Documents step is shown once NIN is at least pending
+  const showDocuments = ninStatus !== "unverified";
 
   return (
     <div className="max-w-2xl space-y-6">
@@ -196,7 +221,7 @@ export default async function VerificationPage() {
           Account Verification
         </h1>
         <p className="text-sm text-stone-500 mt-1">
-          Verify your identity to unlock jobs and start earning.
+          Verify your identity to unlock jobs and start earning. All checks are reviewed by our admin team.
         </p>
       </div>
 
@@ -218,7 +243,8 @@ export default async function VerificationPage() {
       <StepCard
         number={1}
         title="Identity Verification (NIN)"
-        sub="Your 11-digit National Identity Number links your account to NIMC records."
+        sub="Enter your 11-digit National Identity Number. We'll look up your NIMC record and ask you to confirm it's yours before submitting for admin review."
+        complete={ninStatus === "verified"}
       >
         {ninStatus === "unverified" && <NINSubmitForm />}
         {(ninStatus === "pending" || ninStatus === "in_review" || ninStatus === "manual_review") && (
@@ -233,56 +259,63 @@ export default async function VerificationPage() {
         )}
       </StepCard>
 
-      {/* Step 2 — Background check */}
+      {/* Step 2 — Supporting documents (optional, shown after NIN submitted) */}
+      {showDocuments && (
+        <StepCard
+          number={2}
+          title="Supporting Documents"
+          sub="Optional but recommended. Upload your trade test certificate, work photos, or any other credentials that help verify your skills."
+        >
+          <VerificationDocuments existingDocuments={verification.documents ?? []} />
+        </StepCard>
+      )}
+
+      {/* Step 3 — Background check */}
       <StepCard
-        number={2}
+        number={showDocuments ? 3 : 2}
         title="Background Check"
-        sub="A standard check covering identity, criminal record, and work history."
+        sub="A standard check covering identity confirmation, criminal record, and work history. Admin-reviewed after submission."
+        complete={bgStatus === "verified"}
       >
         {bgStatus === "unverified" && (
-          <BackgroundCheckForm ninReady={ninReady} />
+          <BackgroundCheckForm ninReady={ninSubmitted} />
         )}
         {(bgStatus === "pending" || bgStatus === "in_review" || bgStatus === "manual_review") && (
           <WaitingState record={verification.backgroundCheck} label="Background check" />
         )}
         {bgStatus === "verified" && <VerifiedState label="Background check" />}
         {bgStatus === "rejected" && (
-          <div
-            className="rounded-xl px-4 py-3.5 space-y-1"
-            style={{ background: "rgba(239,68,68,0.05)", border: "1px solid rgba(239,68,68,0.18)" }}
-          >
-            <p className="text-sm font-semibold text-red-700">Background check rejected</p>
-            {verification.backgroundCheck.rejectionReason && (
-              <p className="text-xs text-red-500">{verification.backgroundCheck.rejectionReason}</p>
-            )}
-            <p className="text-xs text-red-400 mt-1">
+          <div className="space-y-3">
+            <div
+              className="rounded-xl px-4 py-3.5 space-y-1"
+              style={{ background: "rgba(239,68,68,0.05)", border: "1px solid rgba(239,68,68,0.18)" }}
+            >
+              <p className="text-sm font-semibold text-red-700">Background check rejected</p>
+              {verification.backgroundCheck.rejectionReason && (
+                <p className="text-xs text-red-500">{verification.backgroundCheck.rejectionReason}</p>
+              )}
+            </div>
+            <p className="text-xs text-stone-500">
               Please contact{" "}
-              <span className="font-medium">support@handyhire.ng</span>{" "}
+              <span className="font-medium text-stone-700">support@handyhire.ng</span>{" "}
               to resolve this.
             </p>
           </div>
         )}
       </StepCard>
 
-      {/* Dev panel — simulate review progression */}
-      {isDevMode && (
-        <div
-          className="rounded-2xl p-5 space-y-3"
-          style={{ background: "rgba(99,102,241,0.04)", border: "1px dashed rgba(99,102,241,0.25)" }}
-        >
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] font-bold uppercase tracking-widest text-indigo-400">
-              Dev tool
-            </span>
-            <span className="h-px flex-1" style={{ background: "rgba(99,102,241,0.15)" }} />
-          </div>
-          <p className="text-xs text-indigo-500">
-            Simulate the admin review pipeline: <strong>pending → in_review → verified</strong>.
-            Click once to move to &ldquo;in review&rdquo;, again to mark as verified.
-          </p>
-          <SimulateReviewButton />
-        </div>
-      )}
+      {/* Admin-only note */}
+      <div
+        className="flex items-start gap-3 rounded-xl px-4 py-3"
+        style={{ background: "rgba(99,102,241,0.04)", border: "1px solid rgba(99,102,241,0.14)" }}
+      >
+        <svg viewBox="0 0 16 16" className="w-4 h-4 text-indigo-400 shrink-0 mt-0.5" fill="currentColor" aria-hidden="true">
+          <path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zm-.75 3.5h1.5v5h-1.5v-5zm0 6h1.5v1.5h-1.5V10.5z" />
+        </svg>
+        <p className="text-xs text-indigo-700">
+          <strong>Verification is admin-reviewed.</strong> Our team personally reviews every NIN submission and background check. Only admin-approved workers can access the job feed.
+        </p>
+      </div>
 
       {/* Go to dashboard CTA when fully verified */}
       {overallStatus === "verified" && (

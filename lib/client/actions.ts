@@ -1,6 +1,5 @@
 "use server";
 
-import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth/session";
 import { postJobSchema } from "./schemas";
 import { insertJob, findJobById, updateJobStatus } from "./mock-store";
@@ -15,10 +14,12 @@ import {
 } from "@/lib/chat/mock-store";
 import type { ActionState } from "@/lib/auth/types";
 
+export type PostJobState = ActionState & { success?: boolean; jobId?: string; jobTitle?: string };
+
 export async function postJobAction(
-  _prev: ActionState | null,
+  _prev: PostJobState | null,
   formData: FormData
-): Promise<ActionState> {
+): Promise<PostJobState> {
   const session = await getSession();
   if (!session || session.role !== "client") {
     return { error: "You must be signed in as a client to post a job." };
@@ -44,26 +45,24 @@ export async function postJobAction(
       const key = String(issue.path[0]);
       if (!fieldErrors[key]) fieldErrors[key] = issue.message;
     }
-    return {
-      error: parsed.error.issues[0].message,
-      fieldErrors,
-    };
+    return { error: parsed.error.issues[0].message, fieldErrors };
   }
 
   const { photoUrls, lat, lng, ...rest } = parsed.data;
+  const jobId = `cj_${Date.now()}`;
 
   insertJob({
     clientId: session.userId,
     ...rest,
     photoUrls,
     coordinates: lat != null && lng != null ? { lat, lng } : undefined,
-    id: `cj_${Date.now()}`,
+    id: jobId,
     status: "open",
     postedAt: new Date().toISOString(),
     quotesCount: 0,
   });
 
-  redirect("/client/dashboard");
+  return { success: true, jobId, jobTitle: rest.title };
 }
 
 export async function acceptQuoteAction(quoteId: string): Promise<ActionState> {

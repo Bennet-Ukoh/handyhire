@@ -9,22 +9,48 @@
 
 export type VerificationStatus =
   | "unverified"     // not yet submitted
-  | "pending"        // submitted, queued for review
-  | "in_review"      // actively being reviewed
+  | "pending"        // submitted, awaiting admin review
+  | "in_review"      // actively being reviewed by admin
   | "manual_review"  // flagged for manual admin review
-  | "verified"       // approved
-  | "rejected";      // rejected — action required
+  | "verified"       // approved by admin
+  | "rejected";      // rejected by admin — action required
+
+/** Data returned from a NIN lookup (mock NIMC API). Stored for admin review. */
+export interface NINLookupData {
+  nin: string;
+  firstName: string;
+  lastName: string;
+  middleName?: string;
+  phoneNumber: string;
+  location: string;      // state/city
+  photoUrl: string;      // SVG data URL (mock); signed URL (real)
+  dateOfBirth?: string;  // YYYY-MM-DD
+  gender?: "M" | "F";
+}
+
+export type DocumentType = "trade_test" | "work_photo" | "other";
+
+export interface VerificationDocument {
+  id: string;
+  type: DocumentType;
+  label: string;
+  dataUrl: string;     // base64 data URL (mock); CDN URL (real)
+  uploadedAt: string;  // ISO
+}
 
 export interface VerificationRecord {
   status: VerificationStatus;
-  submittedAt?: string;  // ISO
-  reviewedAt?: string;   // ISO
+  submittedAt?: string;       // ISO — when worker submitted
+  reviewedAt?: string;        // ISO — when admin reviewed
   rejectionReason?: string;
+  ninLookupData?: NINLookupData;  // returned from NIN API; stored for admin review
+  ninConfirmedAt?: string;        // ISO — when worker confirmed data is theirs
 }
 
 export interface WorkerVerification {
   nin: VerificationRecord;
   backgroundCheck: VerificationRecord;
+  documents?: VerificationDocument[];  // optional supporting documents
 }
 
 export type OverallVerificationStatus =

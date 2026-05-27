@@ -1,8 +1,9 @@
 "use client";
 
 import { useActionState } from "react";
+import { useRouter } from "next/navigation";
 import { postJobAction } from "@/lib/client/actions";
-import type { ActionState } from "@/lib/auth/types";
+import type { PostJobState } from "@/lib/client/actions";
 import { TRADE_CATEGORIES } from "@/lib/shared/types";
 import PhotoCapture from "@/components/shared/PhotoCapture";
 import LocationCapture from "@/components/shared/LocationCapture";
@@ -27,11 +28,134 @@ const INPUT_BASE =
 const INPUT_ERROR =
   "w-full px-4 py-3 rounded-xl border border-red-300 bg-red-50/30 text-stone-900 text-sm placeholder:text-stone-400 focus:outline-none focus:border-red-400 focus:ring-2 focus:ring-red-100 transition-colors duration-150";
 
+/* ── Success screen ─────────────────────────────────────────────────── */
+
+function PostJobSuccess({ jobTitle, jobId }: { jobTitle: string; jobId: string }) {
+  const router = useRouter();
+
+  return (
+    <div className="space-y-6">
+      {/* Success card */}
+      <div
+        className="rounded-2xl p-8 text-center space-y-4"
+        style={{
+          background: "linear-gradient(135deg, rgba(16,185,129,0.04) 0%, rgba(5,150,105,0.06) 100%)",
+          border: "1px solid rgba(16,185,129,0.2)",
+          boxShadow: "0 4px 24px rgba(16,185,129,0.08)",
+        }}
+      >
+        {/* Checkmark */}
+        <div
+          className="w-16 h-16 rounded-full flex items-center justify-center mx-auto"
+          style={{ background: "rgba(16,185,129,0.12)", border: "2px solid rgba(16,185,129,0.3)" }}
+        >
+          <svg viewBox="0 0 24 24" className="w-8 h-8" fill="none" aria-hidden="true">
+            <path d="M5 13l4 4L19 7" stroke="#059669" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </div>
+
+        <div>
+          <h2 className="text-xl font-bold text-stone-900">Your job has been posted!</h2>
+          <p className="text-stone-600 text-sm mt-1 font-medium">&ldquo;{jobTitle}&rdquo;</p>
+        </div>
+
+        <p className="text-xs text-stone-500">Job ID: {jobId}</p>
+      </div>
+
+      {/* Next steps */}
+      <div
+        className="rounded-2xl p-6 space-y-4"
+        style={{ background: "#FFFFFF", border: "1px solid rgba(0,0,0,0.07)", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}
+      >
+        <p className="text-sm font-semibold text-stone-800">What happens next?</p>
+        <ul className="space-y-3">
+          {[
+            {
+              icon: (
+                <svg viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4" aria-hidden="true">
+                  <path d="M10 9a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-7 9a7 7 0 1 1 14 0H3z" />
+                </svg>
+              ),
+              text: "Verified workers in your area who match your job category are being notified right now.",
+              color: "#3b82f6",
+            },
+            {
+              icon: (
+                <svg viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4" aria-hidden="true">
+                  <path fillRule="evenodd" d="M18 10c0 4.418-3.582 8-8 8S2 14.418 2 10 5.582 2 10 2s8 3.582 8 8zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z" clipRule="evenodd" />
+                </svg>
+              ),
+              text: "You'll receive quotes from interested workers to review in your dashboard.",
+              color: "#d97706",
+            },
+            {
+              icon: (
+                <svg viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4" aria-hidden="true">
+                  <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 0 0 1.745-.723 3.066 3.066 0 0 1 3.976 0 3.066 3.066 0 0 0 1.745.723 3.066 3.066 0 0 1 2.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 0 1 0 3.976 3.066 3.066 0 0 0-.723 1.745 3.066 3.066 0 0 1-2.812 2.812 3.066 3.066 0 0 0-1.745.723 3.066 3.066 0 0 1-3.976 0 3.066 3.066 0 0 0-1.745-.723 3.066 3.066 0 0 1-2.812-2.812 3.066 3.066 0 0 0-.723-1.745 3.066 3.066 0 0 1 0-3.976 3.066 3.066 0 0 0 .723-1.745 3.066 3.066 0 0 1 2.812-2.812zm7.44 5.252a1 1 0 0 0-1.414-1.414L9 10.586 7.707 9.293a1 1 0 0 0-1.414 1.414l2 2a1 1 0 0 0 1.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+              ),
+              text: "Only admin-verified workers can quote on your job — every worker has been identity checked.",
+              color: "#10b981",
+            },
+          ].map(({ icon, text, color }, i) => (
+            <li key={i} className="flex items-start gap-3">
+              <span
+                className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 mt-0.5 text-white"
+                style={{ background: color }}
+              >
+                {icon}
+              </span>
+              <p className="text-sm text-stone-600 leading-relaxed">{text}</p>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {/* CTAs */}
+      <div className="flex flex-col sm:flex-row gap-3">
+        <button
+          type="button"
+          onClick={() => router.push("/client/dashboard")}
+          className="flex-1 inline-flex items-center justify-center gap-2 text-sm font-semibold text-white
+            py-3.5 rounded-xl transition-all duration-150 hover:-translate-y-px"
+          style={{
+            background: "linear-gradient(135deg, #d97706 0%, #b45309 100%)",
+            boxShadow: "0 4px 16px rgba(180,83,9,0.28)",
+          }}
+        >
+          <svg viewBox="0 0 16 16" className="w-4 h-4" fill="none" stroke="currentColor"
+            strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <rect x="2" y="3" width="12" height="10" rx="1" />
+            <path d="M2 6h12" />
+          </svg>
+          View my dashboard
+        </button>
+
+        <button
+          type="button"
+          onClick={() => router.push("/client/post-job")}
+          className="flex-1 inline-flex items-center justify-center gap-2 text-sm font-semibold text-stone-700
+            py-3.5 rounded-xl transition-all duration-150 hover:bg-stone-100"
+          style={{ border: "1px solid rgba(0,0,0,0.12)" }}
+        >
+          Post another job
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/* ── Main form ──────────────────────────────────────────────────────── */
+
 export default function PostJobForm() {
-  const [state, formAction, isPending] = useActionState<ActionState | null, FormData>(
+  const [state, formAction, isPending] = useActionState<PostJobState | null, FormData>(
     postJobAction,
     null
   );
+
+  if (state?.success && state.jobId && state.jobTitle) {
+    return <PostJobSuccess jobId={state.jobId} jobTitle={state.jobTitle} />;
+  }
 
   const fe = state?.fieldErrors ?? {};
 

@@ -5,6 +5,12 @@ import Link from "next/link";
 import { signInAction } from "@/lib/auth/actions";
 import type { ActionState } from "@/lib/auth/types";
 
+const TEST_CREDENTIALS = [
+  { role: "Client", email: "client@test.com" },
+  { role: "Worker", email: "worker@test.com" },
+  { role: "Admin",  email: "admin@test.com"  },
+] as const;
+
 function EyeIcon({ open }: { open: boolean }) {
   return open ? (
     <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -38,6 +44,13 @@ export default function SignInForm({ registered }: Props) {
     null
   );
   const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  function fillCredential(credEmail: string) {
+    setEmail(credEmail);
+    setPassword("password");
+  }
 
   return (
     <div
@@ -108,6 +121,8 @@ export default function SignInForm({ registered }: Props) {
             required
             autoComplete="email"
             placeholder="you@example.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             className="w-full px-4 py-3 rounded-xl border border-stone-200 bg-white text-stone-900 text-sm placeholder:text-stone-400 focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-100 transition-colors duration-150"
           />
         </div>
@@ -133,6 +148,8 @@ export default function SignInForm({ registered }: Props) {
               required
               autoComplete="current-password"
               placeholder="Enter your password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               className="w-full px-4 py-3 pr-11 rounded-xl border border-stone-200 bg-white text-stone-900 text-sm placeholder:text-stone-400 focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-100 transition-colors duration-150"
             />
             <button
@@ -187,17 +204,42 @@ export default function SignInForm({ registered }: Props) {
 
       {/* Test credentials — dev only */}
       <div
-        className="mt-4 rounded-lg px-3 py-2 text-[11px] flex flex-wrap gap-x-4 gap-y-0.5"
+        className="mt-4 rounded-lg px-3 py-2.5"
         style={{
           background: "rgba(0,0,0,0.025)",
           border: "1px solid rgba(0,0,0,0.06)",
-          color: "#78716c",
         }}
       >
-        <span className="font-semibold text-stone-500 w-full mb-0.5">Test accounts · password: password</span>
-        <span>client@test.com</span>
-        <span>worker@test.com</span>
-        <span>admin@test.com</span>
+        <p className="text-[11px] font-semibold text-stone-500 mb-2">Quick sign-in · click to fill</p>
+        <div className="flex gap-2 flex-wrap">
+          {TEST_CREDENTIALS.map(({ role, email: credEmail }) => (
+            <button
+              key={role}
+              type="button"
+              onClick={() => fillCredential(credEmail)}
+              className="flex flex-col items-start px-3 py-1.5 rounded-lg border text-left transition-all duration-150 hover:-translate-y-px focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400"
+              style={
+                role === "Admin"
+                  ? {
+                      background: "rgba(180,83,9,0.06)",
+                      borderColor: "rgba(180,83,9,0.2)",
+                    }
+                  : {
+                      background: "rgba(0,0,0,0.03)",
+                      borderColor: "rgba(0,0,0,0.08)",
+                    }
+              }
+            >
+              <span
+                className="text-[10px] font-semibold uppercase tracking-wide"
+                style={{ color: role === "Admin" ? "#b45309" : "#78716c" }}
+              >
+                {role}
+              </span>
+              <span className="text-[11px] text-stone-500">{credEmail}</span>
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );

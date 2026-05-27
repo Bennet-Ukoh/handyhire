@@ -137,22 +137,51 @@ export interface JobFeedQuery {
 
 /* ── Verification ────────────────────────────────────────────────────── */
 
-// PATCH /api/workers/:userId/verification/nin
-export interface SubmitNINRequest {
-  nin: string; // 11-digit NIN
+// GET /api/nimc/verify?nin=xxx — NIN lookup (NIMC proxy)
+export interface NINLookupRequest {
+  nin: string;
 }
-export interface SubmitNINResponse {
+export interface NINLookupResponse {
+  nin: string;
+  firstName: string;
+  lastName: string;
+  middleName?: string;
+  phoneNumber: string;
+  location: string;
+  photoUrl: string;   // signed CDN URL
+  dateOfBirth?: string;
+  gender?: "M" | "F";
+}
+
+// POST /api/workers/:userId/verification/nin/confirm
+export interface ConfirmNINRequest {
+  nin: string;
+}
+export interface ConfirmNINResponse {
   status: VerificationStatus;
   submittedAt: string;
+  ninConfirmedAt: string;
 }
 
 // PATCH /api/workers/:userId/verification/background-check
 export interface StartBGCheckRequest {
-  consent: true; // must be explicitly true
+  consent: true;
 }
 export interface StartBGCheckResponse {
   status: VerificationStatus;
   submittedAt: string;
+}
+
+// POST /api/workers/:userId/verification/documents
+export interface UploadDocumentsRequest {
+  documents: Array<{
+    type: "trade_test" | "work_photo" | "other";
+    label: string;
+    url: string;       // CDN URL (real); base64 data URL (mock)
+  }>;
+}
+export interface UploadDocumentsResponse {
+  uploaded: number;
 }
 
 // GET /api/workers/:userId/verification — returns WorkerVerification (already typed)

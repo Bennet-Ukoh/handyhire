@@ -9,7 +9,7 @@
 
 import fs from "fs";
 import path from "path";
-import type { WorkerVerification, VerificationRecord } from "./types";
+import type { WorkerVerification, VerificationRecord, VerificationDocument } from "./types";
 
 declare global {
   // eslint-disable-next-line no-var
@@ -117,6 +117,23 @@ export function updateBGCheckRecord(
   store[userId] = {
     ...current,
     backgroundCheck: { ...current.backgroundCheck, ...patch },
+  };
+  persistToFile(store);
+}
+
+/**
+ * Append supporting documents to a worker's verification record.
+ * Replace body with: POST /api/workers/:userId/verification/documents
+ */
+export function addDocuments(
+  userId: string,
+  docs: VerificationDocument[]
+): void {
+  const store = getStore();
+  const current = store[userId] ?? { ...UNVERIFIED_VERIFICATION };
+  store[userId] = {
+    ...current,
+    documents: [...(current.documents ?? []), ...docs],
   };
   persistToFile(store);
 }

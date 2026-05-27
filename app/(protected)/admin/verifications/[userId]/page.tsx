@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getWorkerVerificationDetail, getWorkerAuditLog } from "@/lib/admin/service";
-import type { VerificationRecord, VerificationStatus } from "@/lib/worker/types";
+import type { VerificationRecord, VerificationStatus, NINLookupData, VerificationDocument } from "@/lib/worker/types";
 import AdminReviewActions from "@/components/admin/AdminReviewActions";
 
 interface PageProps {
@@ -34,6 +34,82 @@ function fmt(iso?: string): string {
     day: "numeric", month: "long", year: "numeric",
     hour: "2-digit", minute: "2-digit",
   });
+}
+
+/* ── NIN identity preview (shown to admin) ──────────────────────────── */
+
+function NINIdentityCard({ data }: { data: NINLookupData }) {
+  const fullName = [data.firstName, data.middleName, data.lastName].filter(Boolean).join(" ");
+  const dob = data.dateOfBirth
+    ? new Date(data.dateOfBirth).toLocaleDateString("en-NG", { day: "numeric", month: "long", year: "numeric" })
+    : null;
+  const genderLabel = data.gender === "M" ? "Male" : data.gender === "F" ? "Female" : null;
+
+  return (
+    <div
+      className="rounded-xl overflow-hidden"
+      style={{ border: "1px solid rgba(0,0,0,0.08)" }}
+    >
+      <div
+        className="px-4 py-2.5 flex items-center justify-between"
+        style={{ background: "linear-gradient(135deg, #1c1917 0%, #292524 100%)" }}
+      >
+        <span className="text-[10px] font-bold uppercase tracking-widest text-stone-300">
+          Worker-confirmed NIMC Record
+        </span>
+        <span className="text-xs font-mono text-stone-400">
+          {data.nin.replace(/(\d{3})(\d{4})(\d{4})/, "$1 $2 $3")}
+        </span>
+      </div>
+      <div className="bg-stone-50 px-4 py-4 flex items-start gap-4">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={data.photoUrl}
+          alt={`NIMC photo for ${fullName}`}
+          className="w-16 h-16 rounded-xl object-cover shrink-0"
+          style={{ border: "2px solid rgba(0,0,0,0.08)" }}
+        />
+        <dl className="grid grid-cols-2 gap-x-6 gap-y-2 flex-1 min-w-0">
+          <div>
+            <dt className="text-[10px] font-bold uppercase tracking-widest text-stone-400">Name</dt>
+            <dd className="text-sm font-semibold text-stone-800 leading-snug">{fullName}</dd>
+          </div>
+          <div>
+            <dt className="text-[10px] font-bold uppercase tracking-widest text-stone-400">Phone</dt>
+            <dd className="text-sm font-semibold text-stone-700">{data.phoneNumber}</dd>
+          </div>
+          <div>
+            <dt className="text-[10px] font-bold uppercase tracking-widest text-stone-400">Location</dt>
+            <dd className="text-sm font-semibold text-stone-700">{data.location}</dd>
+          </div>
+          {dob && (
+            <div>
+              <dt className="text-[10px] font-bold uppercase tracking-widest text-stone-400">Date of Birth</dt>
+              <dd className="text-sm font-semibold text-stone-700">{dob}</dd>
+            </div>
+          )}
+          {genderLabel && (
+            <div>
+              <dt className="text-[10px] font-bold uppercase tracking-widest text-stone-400">Gender</dt>
+              <dd className="text-sm font-semibold text-stone-700">{genderLabel}</dd>
+            </div>
+          )}
+        </dl>
+      </div>
+      {/* Confirmation note */}
+      <div
+        className="px-4 py-2 flex items-center gap-2"
+        style={{ background: "rgba(16,185,129,0.05)", borderTop: "1px solid rgba(16,185,129,0.15)" }}
+      >
+        <svg viewBox="0 0 12 12" className="w-3 h-3 text-emerald-600 shrink-0" fill="none" aria-hidden="true">
+          <path d="M2 6l2.5 2.5L10 3.5" stroke="#059669" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+        <p className="text-[11px] text-emerald-700 font-medium">
+          Worker confirmed this record belongs to them
+        </p>
+      </div>
+    </div>
+  );
 }
 
 /* ── Check detail card ──────────────────────────────────────────────── */
@@ -69,15 +145,26 @@ function CheckCard({
         </span>
       </div>
 
+      {/* NIN identity data (shown only on NIN card when available) */}
+      {checkType === "nin" && record.ninLookupData && (
+        <NINIdentityCard data={record.ninLookupData} />
+      )}
+
       {/* Timeline */}
       <dl className="space-y-2.5">
         <div className="flex items-center justify-between text-xs">
           <dt className="text-stone-400 font-medium">Submitted</dt>
           <dd className="text-stone-700 font-medium">{fmt(record.submittedAt)}</dd>
         </div>
+        {checkType === "nin" && record.ninConfirmedAt && (
+          <div className="flex items-center justify-between text-xs">
+            <dt className="text-stone-400 font-medium">Worker confirmed</dt>
+            <dd className="text-stone-700 font-medium">{fmt(record.ninConfirmedAt)}</dd>
+          </div>
+        )}
         {record.reviewedAt && (
           <div className="flex items-center justify-between text-xs">
-            <dt className="text-stone-400 font-medium">Reviewed</dt>
+            <dt className="text-stone-400 font-medium">Reviewed by admin</dt>
             <dd className="text-stone-700 font-medium">{fmt(record.reviewedAt)}</dd>
           </div>
         )}
@@ -107,6 +194,69 @@ function CheckCard({
         label={label}
       />
     </div>
+  );
+}
+
+/* ── Documents section ──────────────────────────────────────────────── */
+
+const DOC_TYPE_LABELS: Record<string, string> = {
+  trade_test: "Trade Test",
+  work_photo: "Work Photo",
+  other:      "Supporting Doc",
+};
+
+function DocumentsSection({ documents }: { documents: VerificationDocument[] }) {
+  if (documents.length === 0) return null;
+
+  const byType = documents.reduce<Record<string, VerificationDocument[]>>((acc, d) => {
+    (acc[d.type] ??= []).push(d);
+    return acc;
+  }, {});
+
+  return (
+    <section aria-labelledby="docs-heading" className="space-y-3">
+      <p className="text-[11px] font-bold uppercase tracking-widest text-stone-400" id="docs-heading">
+        Supporting Documents
+      </p>
+      <div className="bg-white rounded-2xl p-5 space-y-4"
+        style={{ border: "1px solid rgba(0,0,0,0.07)", boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}>
+        {Object.entries(byType).map(([type, docs]) => (
+          <div key={type}>
+            <p className="text-xs font-semibold text-stone-600 mb-2">
+              {DOC_TYPE_LABELS[type] ?? type} ({docs.length})
+            </p>
+            <ul className="space-y-1.5">
+              {docs.map((doc) => (
+                <li
+                  key={doc.id}
+                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl"
+                  style={{ background: "rgba(0,0,0,0.02)", border: "1px solid rgba(0,0,0,0.06)" }}
+                >
+                  <svg viewBox="0 0 16 16" className="w-4 h-4 text-stone-400 shrink-0" fill="currentColor" aria-hidden="true">
+                    <path d="M4 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.83a2 2 0 0 0-.59-1.42l-2.82-2.82A2 2 0 0 0 9.17 0H4zm5 1.5V4a1 1 0 0 0 1 1h2.5L9 1.5z" />
+                  </svg>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-semibold text-stone-700 truncate">{doc.label}</p>
+                    <p className="text-[10px] text-stone-400">
+                      {new Date(doc.uploadedAt).toLocaleDateString("en-NG", { day: "numeric", month: "short", year: "numeric" })}
+                    </p>
+                  </div>
+                  {doc.dataUrl.startsWith("data:image/") && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={doc.dataUrl}
+                      alt={doc.label}
+                      className="w-10 h-10 rounded-lg object-cover shrink-0"
+                      style={{ border: "1px solid rgba(0,0,0,0.08)" }}
+                    />
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </section>
   );
 }
 
@@ -194,6 +344,11 @@ export default async function WorkerVerificationDetailPage({ params }: PageProps
           record={detail.verification.backgroundCheck}
         />
       </div>
+
+      {/* Supporting documents */}
+      {detail.verification.documents && detail.verification.documents.length > 0 && (
+        <DocumentsSection documents={detail.verification.documents} />
+      )}
 
       {/* Audit log */}
       <section aria-labelledby="audit-heading">
