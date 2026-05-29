@@ -14,6 +14,7 @@ export default async function ClientLayout({ children }: { children: ReactNode }
   const counts = await getClientNotificationCounts(session.userId);
   const notificationCounts: Record<string, number> = {};
   if (counts.pendingQuotes > 0) notificationCounts["/client/dashboard"] = counts.pendingQuotes;
+  if (counts.unreadChats > 0)   notificationCounts["/chat"] = counts.unreadChats;
 
   return (
     <DashboardShell session={session} notificationCounts={notificationCounts}>

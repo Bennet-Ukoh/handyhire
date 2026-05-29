@@ -7,6 +7,7 @@ import {
   insertMessage,
   updateConversationMeta,
   findMessagesByConversationId,
+  updateLastRead,
 } from "./mock-store";
 import type { ActionState } from "@/lib/auth/types";
 import type { Message } from "./types";
@@ -71,4 +72,18 @@ export async function getMessagesAction(
   if (!isParticipant) return [];
 
   return findMessagesByConversationId(conversationId);
+}
+
+export async function markReadAction(conversationId: string): Promise<void> {
+  const session = await getSession();
+  if (!session || session.role === "admin") return;
+
+  const convo = findConversationById(conversationId);
+  if (!convo) return;
+
+  const isParticipant =
+    convo.clientId === session.userId || convo.workerId === session.userId;
+  if (!isParticipant) return;
+
+  updateLastRead(conversationId, session.role as "client" | "worker", new Date().toISOString());
 }

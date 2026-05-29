@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useRef, useState, useTransition } from "react";
-import { sendMessageAction, getMessagesAction } from "@/lib/chat/actions";
+import { sendMessageAction, getMessagesAction, markReadAction } from "@/lib/chat/actions";
 import type { ActionState } from "@/lib/auth/types";
 import type { Message } from "@/lib/chat/types";
 
@@ -61,12 +61,18 @@ export default function ChatWindow({
     if (el) el.scrollTop = el.scrollHeight;
   }, [messages]);
 
+  // Mark conversation as read on open
+  useEffect(() => {
+    markReadAction(conversationId).catch(() => {});
+  }, [conversationId]);
+
   // Poll for new messages every 3 seconds
   useEffect(() => {
     const id = setInterval(async () => {
       try {
         const fresh = await getMessagesAction(conversationId);
         setMessages(fresh);
+        markReadAction(conversationId).catch(() => {});
       } catch { /* ignore polling errors */ }
     }, 3000);
     return () => clearInterval(id);

@@ -32,6 +32,8 @@ const SEED_CONVERSATIONS: Conversation[] = [
     createdAt: "2026-05-16T09:00:00Z",
     lastMessageAt: "2026-05-16T10:15:00Z",
     lastMessageSnippet: "I'll be there at 10am tomorrow with all the tools needed.",
+    clientLastReadAt: "2026-05-16T09:45:00Z",
+    workerLastReadAt: "2026-05-16T10:15:00Z",
   },
 ];
 
@@ -159,4 +161,18 @@ export function insertMessage(msg: Message): void {
   const msgs = getMessages();
   msgs.push(msg);
   persistMessages(msgs);
+}
+
+export function updateLastRead(
+  conversationId: string,
+  role: "client" | "worker",
+  timestamp: string
+): void {
+  const convos = getConversations();
+  const idx = convos.findIndex((c) => c.id === conversationId);
+  if (idx !== -1) {
+    const field = role === "client" ? "clientLastReadAt" : "workerLastReadAt";
+    convos[idx] = { ...convos[idx], [field]: timestamp };
+    persistConversations(convos);
+  }
 }

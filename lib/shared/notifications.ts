@@ -11,18 +11,32 @@ import { findConversationsByUserId, findMessagesByConversationId } from "@/lib/c
 import { getVerificationQueue } from "@/lib/admin/service";
 
 /**
- * For clients: count of pending (unreviewed) quotes across all open jobs.
+ * For clients: count of pending (unreviewed) quotes across all open jobs, and unread chats.
  */
 export async function getClientNotificationCounts(
   userId: string
-): Promise<{ pendingQuotes: number }> {
+): Promise<{ pendingQuotes: number; unreadChats: number }> {
   const jobs = findJobsByClientId(userId).filter((j) => j.status === "open");
   let pendingQuotes = 0;
   for (const job of jobs) {
     const quotes = findQuotesByJobId(job.id);
     pendingQuotes += quotes.filter((q) => q.status === "pending").length;
   }
-  return { pendingQuotes };
+
+  const conversations = findConversationsByUserId(userId, "client");
+  let unreadChats = 0;
+  for (const convo of conversations) {
+    const messages = findMessagesByConversationId(convo.id);
+    const lastReadAt = convo.clientLastReadAt;
+    const hasUnread = messages.some((msg) => {
+      if (msg.senderId === userId) return false;
+      if (!lastReadAt) return true;
+      return msg.sentAt > lastReadAt;
+    });
+    if (hasUnread) unreadChats += 1;
+  }
+
+  return { pendingQuotes, unreadChats };
 }
 
 /**
@@ -36,7 +50,7 @@ export async function getAdminNotificationCounts(): Promise<{ pendingVerificatio
 }
 
 /**
- * For workers: count of accepted quotes that have no reply from the worker yet.
+ * For workers: count of conversations with unread messages from the client.
  */
 export async function getWorkerNotificationCounts(
   userId: string
@@ -45,11 +59,13 @@ export async function getWorkerNotificationCounts(
   let unreadChats = 0;
   for (const convo of conversations) {
     const messages = findMessagesByConversationId(convo.id);
-    const workerHasReplied = messages.some((m) => m.senderId === userId);
-    const clientHasMessaged = messages.some((m) => m.senderRole === "client");
-    if (clientHasMessaged && !workerHasReplied) {
-      unreadChats += 1;
-    }
+    const lastReadAt = convo.workerLastReadAt;
+    const hasUnread = messages.some((msg) => {
+      if (msg.senderId === userId) return false;
+      if (!lastReadAt) return true;
+      return msg.sentAt > lastReadAt;
+    });
+    if (hasUnread) unreadChats += 1;
   }
   return { unreadChats };
 }

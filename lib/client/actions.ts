@@ -91,9 +91,7 @@ export async function acceptQuoteAction(quoteId: string): Promise<ActionState> {
 
   // Create a conversation so both parties can chat
   const conversationId = `conv_${Date.now()}`;
-  const clientProfile = job
-    ? { clientId: session.userId, clientName: session.name }
-    : { clientId: session.userId, clientName: session.name };
+  const now = new Date().toISOString();
 
   insertConversation({
     id: conversationId,
@@ -103,7 +101,9 @@ export async function acceptQuoteAction(quoteId: string): Promise<ActionState> {
     clientName: session.name,
     workerId: quote.workerId,
     workerName: quote.workerName,
-    createdAt: new Date().toISOString(),
+    createdAt: now,
+    clientLastReadAt: now,
+    // workerLastReadAt intentionally omitted — worker sees a badge on first client message
   });
 
   // Write conversationId back to both quote records (client + worker view)

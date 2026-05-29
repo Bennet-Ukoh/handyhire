@@ -16,6 +16,8 @@ export interface Conversation {
   createdAt: string;           // ISO
   lastMessageAt?: string;      // ISO — updated on each new message
   lastMessageSnippet?: string; // truncated for conversation list previews
+  clientLastReadAt?: string;   // ISO — client's last read position
+  workerLastReadAt?: string;   // ISO — worker's last read position
 }
 
 export interface Message {
@@ -26,4 +28,8 @@ export interface Message {
   senderRole: "client" | "worker";
   body: string;
   sentAt: string; // ISO
+}
+
+export interface ConversationPreview extends Conversation {
+  unreadCount: number;
 }
