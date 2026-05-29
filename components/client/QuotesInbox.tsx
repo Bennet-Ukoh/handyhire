@@ -168,7 +168,7 @@ function QuoteCard({ quote, onAccept, onDecline, isPending }: CardProps) {
               {formatNgn(quote.amountNgn)}
             </p>
           </div>
-          <p className="text-xs text-stone-400">{timeAgo(quote.submittedAt)}</p>
+          <p className="text-xs text-stone-400" suppressHydrationWarning>{timeAgo(quote.submittedAt)}</p>
         </div>
 
         {/* Actions */}

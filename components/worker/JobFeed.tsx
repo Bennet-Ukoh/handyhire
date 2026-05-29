@@ -119,7 +119,7 @@ export default function JobFeed({ jobs }: Props) {
                       </>
                     )}
                     <span className="shrink-0">·</span>
-                    <span className="shrink-0">{timeAgo(job.postedAt)}</span>
+                    <span className="shrink-0" suppressHydrationWarning>{timeAgo(job.postedAt)}</span>
                     {job.quotesCount > 0 && (
                       <>
                         <span className="shrink-0">·</span>

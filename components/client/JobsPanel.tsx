@@ -203,7 +203,7 @@ export default function JobsPanel({ jobs }: Props) {
                         {job.location}
                       </span>
                       <span>·</span>
-                      <span>{timeAgo(job.postedAt)}</span>
+                      <span suppressHydrationWarning>{timeAgo(job.postedAt)}</span>
 
                       {job.status === "open" && job.quotesCount > 0 && (
                         <>

@@ -99,7 +99,7 @@ export default function BrowseJobsView({ jobs, trade }: Props) {
                       {job.location}
                     </span>
                     <span>·</span>
-                    <span>{timeAgo(job.postedAt)}</span>
+                    <span suppressHydrationWarning>{timeAgo(job.postedAt)}</span>
                     {job.quotesCount > 0 && (
                       <>
                         <span>·</span>
