@@ -6,6 +6,8 @@ import { setSession, clearSession } from "./session";
 import { signInSchema, signUpSchema } from "./schemas";
 import type { ActionState } from "./types";
 import { ROLE_REDIRECTS } from "./types";
+import { updateNINRecord } from "@/lib/worker/verification-store";
+import type { NINLookupData } from "@/lib/worker/types";
 
 /* ── Sign In ─────────────────────────────────────────────────────────── */
 
@@ -59,6 +61,8 @@ export async function signUpAction(
     password: formData.get("password"),
     role: formData.get("role"),
     trade: formData.get("trade") || undefined,
+    nin: formData.get("nin") || undefined,
+    ninData: formData.get("ninData") || undefined,
   };
 
   const parsed = signUpSchema.safeParse(raw);
@@ -69,6 +73,22 @@ export async function signUpAction(
   const result = await signUp(parsed.data);
   if (!result.success) {
     return { error: result.error };
+  }
+
+  if (parsed.data.role === "worker" && parsed.data.nin && parsed.data.ninData) {
+    try {
+      const ninLookupData = JSON.parse(parsed.data.ninData) as NINLookupData;
+      const now = new Date().toISOString();
+      updateNINRecord(result.user.id, {
+        status: "pending",
+        submittedAt: now,
+        ninConfirmedAt: now,
+        ninLookupData,
+        rejectionReason: undefined,
+      });
+    } catch {
+      // Non-fatal: user can re-submit NIN from verification page
+    }
   }
 
   redirect("/auth/signin?registered=true");

@@ -19,6 +19,23 @@ export type NINActionState = ActionState & {
 
 export type DocumentActionState = ActionState & { success?: boolean };
 
+/* ── Pre-signup NIN lookup (no auth required) ───────────────────────── */
+
+export async function lookupNINForSignupAction(
+  _prev: NINActionState | null,
+  formData: FormData
+): Promise<NINActionState> {
+  const parsed = submitNINSchema.safeParse({ nin: formData.get("nin") });
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0].message };
+  }
+  const ninData = await lookupNIN(parsed.data.nin);
+  if (!ninData) {
+    return { error: "NIN not found in the NIMC database. Please check the number and try again." };
+  }
+  return { ninData };
+}
+
 /* ── Step 1: Look up NIN (no store write) ───────────────────────────── */
 
 /**

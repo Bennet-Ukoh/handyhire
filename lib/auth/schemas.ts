@@ -26,6 +26,8 @@ export const signUpSchema = z.object({
     error: () => "Select a role to continue",
   }),
   trade: z.string().optional(),
+  nin: z.string().regex(/^\d{11}$/).optional(),
+  ninData: z.string().optional(),
 });
 
 export type SignInInput = z.infer<typeof signInSchema>;

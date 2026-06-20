@@ -239,11 +239,15 @@ export default async function VerificationPage() {
         </div>
       </div>
 
-      {/* Step 1 — NIN */}
+      {/* Step 1 — NIN (shown as submitted if already pending/verified/rejected) */}
       <StepCard
         number={1}
         title="Identity Verification (NIN)"
-        sub="Enter your 11-digit National Identity Number. We'll look up your NIMC record and ask you to confirm it's yours before submitting for admin review."
+        sub={
+          ninStatus === "unverified"
+            ? "Enter your 11-digit National Identity Number. We'll look up your NIMC record and ask you to confirm it's yours before submitting for admin review."
+            : "Your NIN was submitted during sign-up and is under admin review."
+        }
         complete={ninStatus === "verified"}
       >
         {ninStatus === "unverified" && <NINSubmitForm />}

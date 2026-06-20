@@ -13,11 +13,11 @@ const links = {
     { label: "Categories", href: "#services" },
     { label: "Pricing", href: "/pricing" },
   ],
-  "For Workers": [
-    { label: "Join as a worker", href: "/auth/signup?role=worker" },
+  "For Artisans": [
+    { label: "Join as an artisan", href: "/auth/signup?role=worker" },
     { label: "How to get hired", href: "/workers/guide" },
     { label: "Verification", href: "/workers/verify" },
-    { label: "Worker stories", href: "/stories" },
+    { label: "Artisan stories", href: "/stories" },
   ],
   Support: [
     { label: "Help centre", href: "/help" },

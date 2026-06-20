@@ -55,22 +55,22 @@ export default function Navbar() {
         {/* Desktop CTAs */}
         <div className="hidden md:flex items-center gap-3">
           <Link
-            href="/auth/signin"
+            href="/auth/signin?role=worker"
             className="text-sm font-medium text-stone-700 hover:text-stone-900 transition-colors duration-150 px-2 py-1"
           >
-            Find Work
+            Artisan
           </Link>
           <Link
             href="/auth/signup"
             className="text-sm font-medium bg-stone-900 text-cream px-4 py-2 rounded-lg hover:bg-stone-800 transition-colors duration-150"
           >
-            Hire Now
+            Client
           </Link>
           <Link
             href="/auth/signin"
             className="text-xs text-stone-400 hover:text-stone-600 transition-colors duration-150 px-2 py-1"
           >
-            Admin Portal
+            Admin
           </Link>
         </div>
 
@@ -128,25 +128,25 @@ export default function Navbar() {
           ))}
           <div className="pt-4 border-t border-stone-200 flex flex-col gap-2.5">
             <Link
-              href="/auth/signin"
+              href="/auth/signin?role=worker"
               className="text-sm font-medium text-stone-900 py-2"
               onClick={() => setOpen(false)}
             >
-              Find Work
+              Artisan
             </Link>
             <Link
               href="/auth/signup"
               className="text-sm font-medium bg-stone-900 text-cream px-4 py-2.5 rounded-lg text-center"
               onClick={() => setOpen(false)}
             >
-              Hire Now
+              Client
             </Link>
             <Link
               href="/auth/signin"
               className="text-xs text-stone-400 hover:text-stone-600 transition-colors duration-150 py-1"
               onClick={() => setOpen(false)}
             >
-              Admin Portal
+              Admin
             </Link>
           </div>
         </div>

@@ -122,7 +122,7 @@ export default function WorkerCTA() {
                   boxShadow: "0 4px 16px rgba(180,83,9,0.45), 0 1px 3px rgba(0,0,0,0.3)",
                 }}
               >
-                Join as a worker &mdash; it&apos;s free
+                Join as an artisan &mdash; it&apos;s free
                 <svg viewBox="0 0 16 16" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                   <path d="M3 8h10M9 4l4 4-4 4" />
                 </svg>
