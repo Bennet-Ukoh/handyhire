@@ -3,8 +3,7 @@ import Link from "next/link";
 import { getSession } from "@/lib/auth/session";
 import { getVerification } from "@/lib/worker/verification-store";
 import { deriveOverallStatus } from "@/lib/worker/types";
-import type { VerificationRecord, VerificationStatus, OverallVerificationStatus } from "@/lib/worker/types";
-import NINSubmitForm from "@/components/worker/NINSubmitForm";
+import type { VerificationRecord, OverallVerificationStatus } from "@/lib/worker/types";
 import BackgroundCheckForm from "@/components/worker/BackgroundCheckForm";
 import VerificationDocuments from "@/components/worker/VerificationDocuments";
 
@@ -20,15 +19,15 @@ const OVERALL_CONFIG: Record<
     bg:     "rgba(120,113,108,0.05)",
     border: "rgba(120,113,108,0.16)",
     dot:    "#a8a29e",
-    text:   "Let's get you verified",
-    sub:    "Complete both steps below to unlock your job feed and start earning on HandyHire.",
+    text:   "One more step",
+    sub:    "Complete the background check below to unlock your job feed and start earning on HandyHire.",
   },
   in_progress: {
     bg:     "rgba(59,130,246,0.05)",
     border: "rgba(59,130,246,0.14)",
     dot:    "#3b82f6",
     text:   "Verification in progress",
-    sub:    "Our compliance team is reviewing your documents. You'll be notified once you're cleared.",
+    sub:    "Our compliance team is reviewing your background check. You'll be notified once you're cleared.",
   },
   verified: {
     bg:     "rgba(16,185,129,0.05)",
@@ -42,28 +41,22 @@ const OVERALL_CONFIG: Record<
     border: "rgba(239,68,68,0.14)",
     dot:    "#ef4444",
     text:   "Action required",
-    sub:    "One or more checks were rejected by our team. Review the details below and resubmit.",
+    sub:    "Your background check was rejected by our team. Review the details below and contact support.",
   },
 };
 
 /* ── Status display helpers ─────────────────────────────────────────── */
 
-const ACTIVE_STATUSES: VerificationStatus[] = ["pending", "in_review", "manual_review", "verified", "rejected"];
-
-function isNINSubmitted(status: VerificationStatus): boolean {
-  return ACTIVE_STATUSES.includes(status);
-}
-
 function WaitingState({ record, label }: { record: VerificationRecord; label: string }) {
-  const isInReview   = record.status === "in_review";
-  const isManual     = record.status === "manual_review";
-  const dot          = isInReview || isManual ? "#3b82f6" : "#f59e0b";
-  const bg           = isInReview || isManual ? "rgba(59,130,246,0.06)" : "rgba(251,191,36,0.08)";
-  const border       = isInReview || isManual ? "rgba(59,130,246,0.2)" : "rgba(251,191,36,0.3)";
-  const textColor    = isInReview || isManual ? "#1d4ed8" : "#92400e";
-  const subColor     = isInReview || isManual ? "#3b82f6" : "#b45309";
+  const isInReview = record.status === "in_review";
+  const isManual   = record.status === "manual_review";
+  const dot        = isInReview || isManual ? "#3b82f6" : "#f59e0b";
+  const bg         = isInReview || isManual ? "rgba(59,130,246,0.06)" : "rgba(251,191,36,0.08)";
+  const border     = isInReview || isManual ? "rgba(59,130,246,0.2)" : "rgba(251,191,36,0.3)";
+  const textColor  = isInReview || isManual ? "#1d4ed8" : "#92400e";
+  const subColor   = isInReview || isManual ? "#3b82f6" : "#b45309";
 
-  const statusLabel  = isInReview ? "is being reviewed by admin"
+  const statusLabel = isInReview ? "is being reviewed by admin"
     : isManual ? "has been flagged for manual review"
     : "submitted — awaiting admin review";
 
@@ -92,7 +85,7 @@ function WaitingState({ record, label }: { record: VerificationRecord; label: st
         )}
         {(isInReview || isManual) && (
           <p className="text-xs mt-0.5" style={{ color: subColor }}>
-            Our team is actively reviewing — you'll receive an update within 1–3 business days.
+            Our team is actively reviewing — you&apos;ll receive an update within 1–3 business days.
           </p>
         )}
       </div>
@@ -113,24 +106,6 @@ function VerifiedState({ label }: { label: string }) {
         </svg>
       </span>
       <p className="text-sm font-semibold text-emerald-800">{label} approved by admin</p>
-    </div>
-  );
-}
-
-function RejectedState({ record, label }: { record: VerificationRecord; label: string }) {
-  return (
-    <div
-      className="rounded-xl px-4 py-3.5 space-y-1"
-      style={{ background: "rgba(239,68,68,0.05)", border: "1px solid rgba(239,68,68,0.18)" }}
-    >
-      <p className="text-sm font-semibold text-red-700">{label} rejected</p>
-      {record.rejectionReason && (
-        <p className="text-xs text-red-500">{record.rejectionReason}</p>
-      )}
-      <p className="text-xs text-red-400 mt-1">
-        Please resubmit below, or contact{" "}
-        <span className="font-medium">support@handyhire.ng</span> for help.
-      </p>
     </div>
   );
 }
@@ -193,12 +168,7 @@ export default async function VerificationPage() {
   const overallStatus = deriveOverallStatus(verification);
   const banner = OVERALL_CONFIG[overallStatus];
 
-  const ninStatus = verification.nin.status;
-  const bgStatus  = verification.backgroundCheck.status;
-  const ninSubmitted = isNINSubmitted(ninStatus);
-
-  // Documents step is shown once NIN is at least pending
-  const showDocuments = ninStatus !== "unverified";
+  const bgStatus = verification.backgroundCheck.status;
 
   return (
     <div className="max-w-2xl space-y-6">
@@ -221,7 +191,7 @@ export default async function VerificationPage() {
           Account Verification
         </h1>
         <p className="text-sm text-stone-500 mt-1">
-          Verify your identity to unlock jobs and start earning. All checks are reviewed by our admin team.
+          Your NIN was verified at sign-up. Complete the background check below to unlock your job feed.
         </p>
       </div>
 
@@ -239,51 +209,23 @@ export default async function VerificationPage() {
         </div>
       </div>
 
-      {/* Step 1 — NIN (shown as submitted if already pending/verified/rejected) */}
+      {/* Step 1 — Supporting documents (optional) */}
       <StepCard
         number={1}
-        title="Identity Verification (NIN)"
-        sub={
-          ninStatus === "unverified"
-            ? "Enter your 11-digit National Identity Number. We'll look up your NIMC record and ask you to confirm it's yours before submitting for admin review."
-            : "Your NIN was submitted during sign-up and is under admin review."
-        }
-        complete={ninStatus === "verified"}
+        title="Supporting Documents"
+        sub="Optional but recommended. Upload your trade test certificate, work photos, or any other credentials that help verify your skills."
       >
-        {ninStatus === "unverified" && <NINSubmitForm />}
-        {(ninStatus === "pending" || ninStatus === "in_review" || ninStatus === "manual_review") && (
-          <WaitingState record={verification.nin} label="NIN" />
-        )}
-        {ninStatus === "verified" && <VerifiedState label="NIN" />}
-        {ninStatus === "rejected" && (
-          <div className="space-y-4">
-            <RejectedState record={verification.nin} label="NIN" />
-            <NINSubmitForm />
-          </div>
-        )}
+        <VerificationDocuments existingDocuments={verification.documents ?? []} />
       </StepCard>
 
-      {/* Step 2 — Supporting documents (optional, shown after NIN submitted) */}
-      {showDocuments && (
-        <StepCard
-          number={2}
-          title="Supporting Documents"
-          sub="Optional but recommended. Upload your trade test certificate, work photos, or any other credentials that help verify your skills."
-        >
-          <VerificationDocuments existingDocuments={verification.documents ?? []} />
-        </StepCard>
-      )}
-
-      {/* Step 3 — Background check */}
+      {/* Step 2 — Background check */}
       <StepCard
-        number={showDocuments ? 3 : 2}
+        number={2}
         title="Background Check"
         sub="A standard check covering identity confirmation, criminal record, and work history. Admin-reviewed after submission."
         complete={bgStatus === "verified"}
       >
-        {bgStatus === "unverified" && (
-          <BackgroundCheckForm ninReady={ninSubmitted} />
-        )}
+        {bgStatus === "unverified" && <BackgroundCheckForm ninReady={true} />}
         {(bgStatus === "pending" || bgStatus === "in_review" || bgStatus === "manual_review") && (
           <WaitingState record={verification.backgroundCheck} label="Background check" />
         )}
@@ -308,7 +250,7 @@ export default async function VerificationPage() {
         )}
       </StepCard>
 
-      {/* Admin-only note */}
+      {/* Admin note */}
       <div
         className="flex items-start gap-3 rounded-xl px-4 py-3"
         style={{ background: "rgba(99,102,241,0.04)", border: "1px solid rgba(99,102,241,0.14)" }}
@@ -317,7 +259,7 @@ export default async function VerificationPage() {
           <path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zm-.75 3.5h1.5v5h-1.5v-5zm0 6h1.5v1.5h-1.5V10.5z" />
         </svg>
         <p className="text-xs text-indigo-700">
-          <strong>Verification is admin-reviewed.</strong> Our team personally reviews every NIN submission and background check. Only admin-approved workers can access the job feed.
+          <strong>Verification is admin-reviewed.</strong> Our team personally reviews every background check. Only admin-approved artisans can access the job feed.
         </p>
       </div>
 
