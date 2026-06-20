@@ -55,16 +55,16 @@ export default function Navbar() {
         {/* Desktop CTAs */}
         <div className="hidden md:flex items-center gap-3">
           <Link
-            href="/auth/signin?role=worker"
+            href="/auth/signin"
             className="text-sm font-medium text-stone-700 hover:text-stone-900 transition-colors duration-150 px-2 py-1"
           >
-            Artisan
+            Sign In
           </Link>
           <Link
             href="/auth/signup"
             className="text-sm font-medium bg-stone-900 text-cream px-4 py-2 rounded-lg hover:bg-stone-800 transition-colors duration-150"
           >
-            Client
+            Sign Up
           </Link>
           <Link
             href="/auth/signin"
@@ -128,18 +128,18 @@ export default function Navbar() {
           ))}
           <div className="pt-4 border-t border-stone-200 flex flex-col gap-2.5">
             <Link
-              href="/auth/signin?role=worker"
+              href="/auth/signin"
               className="text-sm font-medium text-stone-900 py-2"
               onClick={() => setOpen(false)}
             >
-              Artisan
+              Sign In
             </Link>
             <Link
               href="/auth/signup"
               className="text-sm font-medium bg-stone-900 text-cream px-4 py-2.5 rounded-lg text-center"
               onClick={() => setOpen(false)}
             >
-              Client
+              Sign Up
             </Link>
             <Link
               href="/auth/signin"
