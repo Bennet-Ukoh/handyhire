@@ -4,17 +4,14 @@ import type { SessionData, UserRole } from "./lib/auth/types";
 
 const COOKIE_NAME = "hh_session";
 
-/* Routes that require authentication */
 const PROTECTED: string[] = ["/dashboard", "/client", "/worker", "/admin"];
 
-/* Role-gated route prefixes */
 const ROLE_GATES: Record<string, UserRole> = {
-  "/client":  "client",
-  "/worker":  "worker",
-  "/admin":   "admin",
+  "/client": "client",
+  "/worker": "worker",
+  "/admin":  "admin",
 };
 
-/* Auth pages — redirect away if already signed in */
 const AUTH_PATHS: string[] = ["/auth/signin", "/auth/signup"];
 
 function parseSession(raw: string): SessionData | null {
@@ -25,7 +22,7 @@ function parseSession(raw: string): SessionData | null {
   }
 }
 
-export function proxy(request: NextRequest) {
+export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const raw = request.cookies.get(COOKIE_NAME)?.value;
   const session = raw ? parseSession(raw) : null;
@@ -33,7 +30,6 @@ export function proxy(request: NextRequest) {
   const isProtected = PROTECTED.some((p) => pathname.startsWith(p));
   const isAuthPage  = AUTH_PATHS.some((p) => pathname.startsWith(p));
 
-  /* ── Unauthenticated user hitting a protected route ── */
   if (isProtected && !session) {
     const url = request.nextUrl.clone();
     url.pathname = "/auth/signin";
@@ -41,7 +37,6 @@ export function proxy(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  /* ── Authenticated user with wrong role hitting a gated route ── */
   if (isProtected && session) {
     for (const [prefix, requiredRole] of Object.entries(ROLE_GATES)) {
       if (pathname.startsWith(prefix) && session.role !== requiredRole && session.role !== "admin") {
@@ -52,7 +47,6 @@ export function proxy(request: NextRequest) {
     }
   }
 
-  /* ── Already signed-in user hitting /auth/* ── */
   if (isAuthPage && session) {
     const url = request.nextUrl.clone();
     url.pathname = "/dashboard";

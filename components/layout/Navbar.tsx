@@ -66,12 +66,6 @@ export default function Navbar() {
           >
             Sign Up
           </Link>
-          <Link
-            href="/auth/signin"
-            className="text-xs text-stone-400 hover:text-stone-600 transition-colors duration-150 px-2 py-1"
-          >
-            Admin
-          </Link>
         </div>
 
         {/* Mobile hamburger */}
@@ -140,13 +134,6 @@ export default function Navbar() {
               onClick={() => setOpen(false)}
             >
               Sign Up
-            </Link>
-            <Link
-              href="/auth/signin"
-              className="text-xs text-stone-400 hover:text-stone-600 transition-colors duration-150 py-1"
-              onClick={() => setOpen(false)}
-            >
-              Admin
             </Link>
           </div>
         </div>
