@@ -345,7 +345,7 @@ export default function DashboardShell({ session, children, notificationCounts }
         {/* Page content */}
         <main
           id="main-content"
-          className="flex-1 max-w-7xl mx-auto w-full px-6 md:px-8 py-10 md:py-12"
+          className="flex-1 max-w-screen-2xl mx-auto w-full px-6 md:px-8 py-10 md:py-12"
         >
           {children}
         </main>

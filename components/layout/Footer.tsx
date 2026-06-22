@@ -30,7 +30,7 @@ const links = {
 export default function Footer() {
   return (
     <footer className="bg-stone-900 text-cream" aria-label="Site footer">
-      <div className="max-w-7xl mx-auto px-6 md:px-8 pt-16 pb-10">
+      <div className="max-w-screen-2xl mx-auto px-6 md:px-8 pt-16 pb-10">
         {/* Top row: brand + links */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-10 mb-14">
           {/* Brand */}

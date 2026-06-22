@@ -132,7 +132,7 @@ export default function Categories() {
         style={{ backgroundImage: GRAIN, opacity: 0.035 }}
       />
 
-      <div className="relative max-w-7xl mx-auto px-6 md:px-8">
+      <div className="relative max-w-screen-2xl mx-auto px-6 md:px-8">
         {/* Header */}
         <ScrollReveal className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-5 mb-10 md:mb-12">
           <div>

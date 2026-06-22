@@ -53,7 +53,7 @@ export default function WorkerCTA() {
         }}
       />
 
-      <div className="relative max-w-7xl mx-auto px-6 md:px-8 py-20 md:py-28">
+      <div className="relative max-w-screen-2xl mx-auto px-6 md:px-8 py-20 md:py-28">
         <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
 
           {/* ── Left: copy ── */}
