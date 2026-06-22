@@ -62,7 +62,7 @@ export default function Testimonials() {
         style={{ backgroundImage: GRAIN, opacity: 0.04 }}
       />
 
-      <div className="relative max-w-screen-2xl mx-auto px-6 md:px-8">
+      <div className="relative max-w-7xl mx-auto px-6 md:px-8">
         {/* Header */}
         <ScrollReveal className="text-center mb-12 md:mb-14">
           <p className="text-xs font-semibold text-amber-600 uppercase tracking-widest mb-3">

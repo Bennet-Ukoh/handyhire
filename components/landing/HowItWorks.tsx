@@ -81,7 +81,7 @@ export default function HowItWorks() {
         style={{ backgroundImage: GRAIN, opacity: 0.03 }}
       />
 
-      <div className="relative max-w-screen-2xl mx-auto px-6 md:px-8">
+      <div className="relative max-w-7xl mx-auto px-6 md:px-8">
         {/* Header */}
         <ScrollReveal className="text-center mb-10 md:mb-12">
           <p className="text-xs font-semibold text-amber-600 uppercase tracking-widest mb-3">

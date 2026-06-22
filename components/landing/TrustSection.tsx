@@ -79,7 +79,7 @@ export default function TrustSection() {
           style={{ backgroundImage: GRAIN, opacity: 0.04 }}
         />
 
-        <div className="relative max-w-screen-2xl mx-auto px-6 md:px-8">
+        <div className="relative max-w-7xl mx-auto px-6 md:px-8">
           <ul
             className="grid grid-cols-2 lg:grid-cols-4"
             role="list"
@@ -124,7 +124,7 @@ export default function TrustSection() {
           aria-label="Why HandyHire"
         />
 
-        <div className="relative max-w-screen-2xl mx-auto px-6 md:px-8">
+        <div className="relative max-w-7xl mx-auto px-6 md:px-8">
           <ScrollReveal className="text-center mb-12">
             <p className="text-xs font-semibold text-amber-600 uppercase tracking-widest mb-3">
               Why HandyHire

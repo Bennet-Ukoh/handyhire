@@ -9,7 +9,7 @@ export default function Navbar() {
   return (
     <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-stone-200/70">
       <nav
-        className="max-w-screen-2xl mx-auto px-6 md:px-8 h-16 flex items-center justify-between"
+        className="max-w-7xl mx-auto px-6 md:px-8 h-16 flex items-center justify-between"
         aria-label="Main navigation"
       >
         {/* Logo */}
