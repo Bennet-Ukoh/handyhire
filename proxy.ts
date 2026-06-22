@@ -22,7 +22,7 @@ function parseSession(raw: string): SessionData | null {
   }
 }
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const raw = request.cookies.get(COOKIE_NAME)?.value;
   const session = raw ? parseSession(raw) : null;
