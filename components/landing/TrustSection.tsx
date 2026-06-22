@@ -1,6 +1,7 @@
 import ScrollReveal from "@/components/ui/ScrollReveal";
 
 const GRAIN = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.78' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E")`;
+const BRICK = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='40'%3E%3Cline x1='0' y1='0' x2='80' y2='0' stroke='%23d0cbc3' stroke-width='1.5'/%3E%3Cline x1='0' y1='20' x2='80' y2='20' stroke='%23d0cbc3' stroke-width='1.5'/%3E%3Cline x1='40' y1='0' x2='40' y2='20' stroke='%23d0cbc3' stroke-width='1.5'/%3E%3Cline x1='20' y1='20' x2='20' y2='40' stroke='%23d0cbc3' stroke-width='1.5'/%3E%3Cline x1='60' y1='20' x2='60' y2='40' stroke='%23d0cbc3' stroke-width='1.5'/%3E%3C/svg%3E")`;
 
 const stats = [
   { value: "10,000+", label: "Jobs completed" },
@@ -112,18 +113,10 @@ export default function TrustSection() {
 
       {/* ── Trust pillars ── */}
       <div
+        id="why-handyhire"
         className="relative overflow-hidden py-20 md:py-24"
-        style={{ background: "#FDFAF5" }}
+        style={{ background: "#ffffff", backgroundImage: BRICK }}
       >
-        {/* Grain */}
-        <div
-          className="absolute inset-0 pointer-events-none"
-          aria-hidden="true"
-          style={{ backgroundImage: GRAIN, opacity: 0.03 }}
-          id="why-handyhire"
-          aria-label="Why HandyHire"
-        />
-
         <div className="relative max-w-7xl mx-auto px-6 md:px-8">
           <ScrollReveal className="text-center mb-12">
             <p className="text-xs font-semibold text-amber-600 uppercase tracking-widest mb-3">

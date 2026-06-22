@@ -1,7 +1,7 @@
 import Link from "next/link";
 import ScrollReveal from "@/components/ui/ScrollReveal";
 
-const GRAIN = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.78' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E")`;
+const BRICK = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='40'%3E%3Cline x1='0' y1='0' x2='80' y2='0' stroke='%23d0cbc3' stroke-width='1.5'/%3E%3Cline x1='0' y1='20' x2='80' y2='20' stroke='%23d0cbc3' stroke-width='1.5'/%3E%3Cline x1='40' y1='0' x2='40' y2='20' stroke='%23d0cbc3' stroke-width='1.5'/%3E%3Cline x1='20' y1='20' x2='20' y2='40' stroke='%23d0cbc3' stroke-width='1.5'/%3E%3Cline x1='60' y1='20' x2='60' y2='40' stroke='%23d0cbc3' stroke-width='1.5'/%3E%3C/svg%3E")`;
 
 const categories = [
   {
@@ -112,7 +112,7 @@ export default function Categories() {
     <section
       id="services"
       className="relative overflow-hidden py-20 md:py-28"
-      style={{ background: "#F5F0E8" }}
+      style={{ background: "#ffffff", backgroundImage: BRICK }}
       aria-labelledby="categories-heading"
     >
       {/* Radial glow center */}
@@ -123,13 +123,6 @@ export default function Categories() {
           backgroundImage:
             "radial-gradient(ellipse 80% 55% at 50% 110%, rgba(217,119,6,0.07) 0%, transparent 65%)",
         }}
-      />
-
-      {/* Grain */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        aria-hidden="true"
-        style={{ backgroundImage: GRAIN, opacity: 0.035 }}
       />
 
       <div className="relative max-w-7xl mx-auto px-6 md:px-8">
