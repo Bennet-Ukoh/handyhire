@@ -66,6 +66,7 @@ export default async function ClientJobsPage({ searchParams }: Props) {
       </div>
 
       {/* Tabs */}
+      <div className="overflow-x-auto -mx-1 px-1">
       <div
         className="flex gap-1 p-1 rounded-xl w-fit"
         style={{ background: "rgba(0,0,0,0.04)", border: "1px solid rgba(0,0,0,0.06)" }}
@@ -91,6 +92,7 @@ export default async function ClientJobsPage({ searchParams }: Props) {
             </Link>
           );
         })}
+      </div>
       </div>
 
       {/* List */}

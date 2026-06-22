@@ -89,10 +89,13 @@ export default function TrustSection() {
             {stats.map(({ value, label }, i) => (
               <li
                 key={label}
-                className="text-center px-6 py-12 md:py-16"
-                style={{
-                  borderRight: i < 3 ? "1px solid rgba(255,255,255,0.05)" : "none",
-                }}
+                className={`text-center px-6 py-12 md:py-16 ${
+                  i === 3
+                    ? ""
+                    : i % 2 === 0
+                      ? "border-r border-white/5"
+                      : "lg:border-r lg:border-white/5"
+                }`}
               >
                 <p
                   className="font-display text-5xl md:text-6xl lg:text-7xl text-amber-400 leading-none mb-3"

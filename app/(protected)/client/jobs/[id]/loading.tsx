@@ -10,7 +10,7 @@ export default function Loading() {
           </div>
           <div className="h-7 w-20 rounded-lg bg-stone-100 animate-pulse" />
         </div>
-        <div className="grid grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {[1,2,3,4].map((i) => <div key={i} className="h-14 rounded-xl bg-stone-100 animate-pulse" />)}
         </div>
         <div className="h-20 rounded-xl bg-stone-100 animate-pulse" />
