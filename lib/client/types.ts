@@ -72,6 +72,8 @@ export interface ClientProfile {
   name: string;
   email: string;
   location?: string;
+  phone?: string;
+  profileComplete: boolean;
   recentJobs: ClientJob[];
   receivedQuotes: ReceivedQuote[];  // quotes on open jobs only
   stats: ClientStats;

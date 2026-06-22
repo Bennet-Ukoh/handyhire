@@ -34,23 +34,24 @@ export default function Navbar() {
         </Link>
 
         {/* Desktop links */}
-        <div className="hidden md:flex items-center gap-7" role="list">
+        <ul className="hidden md:flex items-center gap-7">
           {[
             { href: "#how-it-works", label: "How it works" },
             { href: "#services", label: "Services" },
-            { href: "#workers", label: "Find workers" },
-            { href: "#about", label: "About" },
+            { href: "#why-handyhire", label: "Why HandyHire?" },
+           
           ].map(({ href, label }) => (
+            <li key={href}>
             <Link
-              key={href}
               href={href}
               className="text-sm text-stone-500 hover:text-stone-900 transition-colors duration-150"
-              role="listitem"
+            
             >
               {label}
             </Link>
+            </li>
           ))}
-        </div>
+        </ul>
 
         {/* Desktop CTAs */}
         <div className="hidden md:flex items-center gap-3">
@@ -108,8 +109,8 @@ export default function Navbar() {
           {[
             { href: "#how-it-works", label: "How it works" },
             { href: "#services", label: "Services" },
-            { href: "#workers", label: "Find workers" },
-            { href: "#about", label: "About" },
+            { href: "#why-handyhire", label: "Why HandyHire?" },
+           
           ].map(({ href, label }) => (
             <Link
               key={href}

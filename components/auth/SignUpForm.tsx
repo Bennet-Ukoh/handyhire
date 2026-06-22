@@ -59,7 +59,6 @@ export default function SignUpForm({ initialRole }: Props) {
   const [ninLookupKey, setNinLookupKey] = useState(0); // forces NIN form remount on reset
 
   // Controlled step-1 fields — needed so artisan can carry values into step-2 submit
-  const [name, setName]   = useState("");
   const [email, setEmail] = useState("");
   const [pass, setPass]   = useState("");
   const [trade, setTrade] = useState("");
@@ -162,20 +161,6 @@ export default function SignUpForm({ initialRole }: Props) {
           {/* For clients: fields live inside a real form. For artisans: controlled state, no form wrapper needed here. */}
           <div className="space-y-4">
             <div className="space-y-1.5">
-              <label htmlFor="s1-name" className="block text-sm font-medium text-stone-700">Full name</label>
-              <input
-                id="s1-name"
-                type="text"
-                required
-                autoComplete="name"
-                placeholder="Aisha Bello"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl border border-stone-200 bg-white text-stone-900 text-sm placeholder:text-stone-400 focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-100 transition-colors duration-150"
-              />
-            </div>
-
-            <div className="space-y-1.5">
               <label htmlFor="s1-email" className="block text-sm font-medium text-stone-700">Email address</label>
               <input
                 id="s1-email"
@@ -264,7 +249,6 @@ export default function SignUpForm({ initialRole }: Props) {
               /* Client — submit directly */
               <form action={formAction}>
                 <input type="hidden" name="role" value="client" />
-                <input type="hidden" name="name" value={name} />
                 <input type="hidden" name="email" value={email} />
                 <input type="hidden" name="password" value={pass} />
                 <button
@@ -416,7 +400,7 @@ export default function SignUpForm({ initialRole }: Props) {
               {/* Confirm — triggers the final signup submit */}
               <form action={formAction}>
                 <input type="hidden" name="role" value="worker" />
-                <input type="hidden" name="name" value={name} />
+                <input type="hidden" name="name" value={[ninData.firstName, ninData.lastName].filter(Boolean).join(" ")} />
                 <input type="hidden" name="email" value={email} />
                 <input type="hidden" name="password" value={pass} />
                 <input type="hidden" name="trade" value={trade} />

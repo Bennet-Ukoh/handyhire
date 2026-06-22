@@ -56,7 +56,7 @@ const pillars = [
 
 export default function TrustSection() {
   return (
-    <section aria-labelledby="trust-heading">
+    <section aria-labelledby="why-handyhire-heading">
       {/* ── Stats band ── */}
       <div
         className="relative overflow-hidden"
@@ -117,6 +117,8 @@ export default function TrustSection() {
           className="absolute inset-0 pointer-events-none"
           aria-hidden="true"
           style={{ backgroundImage: GRAIN, opacity: 0.03 }}
+          id="why-handyhire"
+          aria-label="Why HandyHire"
         />
 
         <div className="relative max-w-7xl mx-auto px-6 md:px-8">
@@ -125,7 +127,7 @@ export default function TrustSection() {
               Why HandyHire
             </p>
             <h2
-              id="trust-heading"
+              id="why-handyhire-heading"
               className="font-display text-4xl md:text-5xl text-stone-900 tracking-tight"
             >
               Built on trust, by design

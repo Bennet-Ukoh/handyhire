@@ -55,9 +55,13 @@ export async function signUpAction(
   _prev: ActionState | null,
   formData: FormData
 ): Promise<ActionState> {
+  const email = String(formData.get("email") ?? "");
+  const rawName = String(formData.get("name") ?? "").trim();
+  const derivedName = rawName || email.split("@")[0].replace(/[._\-]/g, " ");
+
   const raw = {
-    name: formData.get("name"),
-    email: formData.get("email"),
+    name: derivedName,
+    email,
     password: formData.get("password"),
     role: formData.get("role"),
     trade: formData.get("trade") || undefined,

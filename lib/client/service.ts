@@ -7,6 +7,7 @@
 
 import type { ClientProfile, ReceivedQuote } from "./types";
 import { findJobsByClientId } from "./mock-store";
+import { getStoredClientProfile, isClientProfileComplete } from "./profile-store";
 import { findQuotesByJobId } from "@/lib/shared/quote-store";
 import { getVerification } from "@/lib/worker/verification-store";
 
@@ -21,7 +22,7 @@ function simulateDelay(ms = 300): Promise<void> {
 
 /* ── Mock data ──────────────────────────────────────────────────────── */
 
-const MOCK_PROFILES: Record<string, ClientProfile> = {
+const MOCK_PROFILES: Record<string, Omit<ClientProfile, "profileComplete">> = {
   usr_client_001: {
     userId: "usr_client_001",
     name: "Aisha Bello",
@@ -129,7 +130,7 @@ const MOCK_PROFILES: Record<string, ClientProfile> = {
   },
 };
 
-const EMPTY_DEFAULT: ClientProfile = {
+const EMPTY_DEFAULT: Omit<ClientProfile, "profileComplete"> = {
   userId: "",
   name: "",
   email: "",
@@ -152,7 +153,13 @@ const EMPTY_DEFAULT: ClientProfile = {
 export async function getClientProfile(userId: string): Promise<ClientProfile> {
   await simulateDelay(300);
   const profile = MOCK_PROFILES[userId];
-  if (!profile) return { ...EMPTY_DEFAULT, userId };
+  if (!profile) {
+    return {
+      ...EMPTY_DEFAULT,
+      userId,
+      profileComplete: isClientProfileComplete(userId),
+    };
+  }
 
   const recentJobs = findJobsByClientId(userId).slice(0, 10);
   const jobsPosted = recentJobs.length;
@@ -184,8 +191,13 @@ export async function getClientProfile(userId: string): Promise<ClientProfile> {
     }))
   );
 
+  const storedProfile = getStoredClientProfile(userId);
+
   return {
     ...profile,
+    location: storedProfile?.location ?? profile.location,
+    phone: storedProfile?.phone,
+    profileComplete: isClientProfileComplete(userId),
     recentJobs,
     receivedQuotes,
     stats: { ...profile.stats, jobsPosted, workersHired },

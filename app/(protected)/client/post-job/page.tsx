@@ -1,9 +1,17 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
+import { getSession } from "@/lib/auth/session";
+import { isClientProfileComplete } from "@/lib/client/profile-store";
 import PostJobForm from "@/components/client/PostJobForm";
 
 export const metadata: Metadata = { title: "Post a Job — HandyHire" };
 
-export default function PostJobPage() {
+export default async function PostJobPage() {
+  const session = await getSession();
+  if (!isClientProfileComplete(session!.userId)) {
+    redirect("/client/profile/setup?from=/client/post-job");
+  }
+
   return (
     <div className="max-w-2xl mx-auto">
       <div className="mb-7">

@@ -1,8 +1,10 @@
 "use server";
 
+import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth/session";
-import { postJobSchema } from "./schemas";
+import { postJobSchema, clientProfileSchema } from "./schemas";
 import { insertJob, findJobById, updateJobStatus } from "./mock-store";
+import { upsertClientProfile } from "./profile-store";
 import {
   findQuoteById,
   updateQuoteStatus,
@@ -138,4 +140,41 @@ export async function completeJobAction(jobId: string): Promise<ActionState> {
 
   updateJobStatus(jobId, "completed", { completedAt: new Date().toISOString() });
   return {};
+}
+
+/* ── Profile setup ──────────────────────────────────────────────────── */
+
+export type ProfileSetupState = ActionState & { success?: boolean };
+
+export async function updateClientProfileAction(
+  _prev: ProfileSetupState | null,
+  formData: FormData
+): Promise<ProfileSetupState> {
+  const session = await getSession();
+  if (!session || session.role !== "client") {
+    return { error: "Not authenticated." };
+  }
+
+  const raw = {
+    location: formData.get("location"),
+    phone: formData.get("phone"),
+    from: (formData.get("from") as string) || undefined,
+  };
+
+  const parsed = clientProfileSchema.safeParse(raw);
+  if (!parsed.success) {
+    const fieldErrors: Record<string, string> = {};
+    for (const issue of parsed.error.issues) {
+      const key = String(issue.path[0]);
+      if (!fieldErrors[key]) fieldErrors[key] = issue.message;
+    }
+    return { error: parsed.error.issues[0].message, fieldErrors };
+  }
+
+  upsertClientProfile(session.userId, {
+    location: parsed.data.location,
+    phone: parsed.data.phone,
+  });
+
+  redirect(parsed.data.from ?? "/client/dashboard");
 }

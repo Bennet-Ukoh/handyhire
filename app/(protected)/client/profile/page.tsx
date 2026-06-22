@@ -30,7 +30,8 @@ export default async function ClientProfilePage() {
   const fields = [
     { label: "Full name",    value: user.name },
     { label: "Email",        value: user.email },
-    { label: "Location",     value: user.location ?? "Not set" },
+    { label: "Location",     value: profile.location ?? "Not set" },
+    { label: "Phone",        value: profile.phone ?? "Not set" },
     { label: "Member since", value: formatDate(user.createdAt) },
   ];
 
@@ -90,9 +91,17 @@ export default async function ClientProfilePage() {
         className="bg-white rounded-2xl overflow-hidden"
         style={{ border: "1px solid rgba(0,0,0,0.07)", boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}
       >
-        <div className="px-5 py-4" style={{ borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
-          <h3 className="text-sm font-semibold text-stone-800">Account details</h3>
-          <p className="text-xs text-stone-400 mt-0.5">Profile editing is coming soon.</p>
+        <div className="px-5 py-4 flex items-center justify-between gap-4" style={{ borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
+          <div>
+            <h3 className="text-sm font-semibold text-stone-800">Account details</h3>
+            <p className="text-xs text-stone-400 mt-0.5">Your contact and location information.</p>
+          </div>
+          <a
+            href="/client/profile/setup"
+            className="text-xs font-semibold text-amber-700 hover:text-amber-800 transition-colors shrink-0"
+          >
+            Edit profile
+          </a>
         </div>
         <ul className="divide-y" style={{ borderColor: "rgba(0,0,0,0.05)" }}>
           {fields.map(({ label, value }) => (

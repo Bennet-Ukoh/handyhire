@@ -275,7 +275,7 @@ export default function Hero() {
             {/* CTAs */}
             <div className="hh-enter-4 flex flex-col sm:flex-row gap-3 mb-7">
               <Link
-                href="/post-job"
+                href="/worker/jobs"
                 className="inline-flex items-center justify-center gap-2 font-semibold text-sm px-6 py-3.5 rounded-xl transition-all duration-200 hover:-translate-y-px active:translate-y-0"
                 style={{
                   background: "linear-gradient(135deg, #d97706 0%, #b45309 100%)",
@@ -289,7 +289,7 @@ export default function Hero() {
                 </svg>
               </Link>
               <Link
-                href="/workers"
+                href="/auth/signup"
                 className="inline-flex items-center justify-center bg-white border border-stone-200 text-stone-800 font-medium text-sm px-6 py-3.5 rounded-xl hover:border-stone-300 hover:bg-stone-50 transition-colors duration-150"
               >
                 Browse workers

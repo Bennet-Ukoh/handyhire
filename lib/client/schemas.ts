@@ -44,3 +44,14 @@ export const postJobSchema = z
   });
 
 export type PostJobInput = z.infer<typeof postJobSchema>;
+
+export const clientProfileSchema = z.object({
+  location: z.string().min(2, "Enter your city or area").max(100),
+  phone: z
+    .string()
+    .min(7, "Enter a valid phone number")
+    .max(20, "Phone number is too long"),
+  from: z.string().optional(),
+});
+
+export type ClientProfileInput = z.infer<typeof clientProfileSchema>;
