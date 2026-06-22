@@ -62,6 +62,7 @@ export default function SignUpForm({ initialRole }: Props) {
   const [email, setEmail] = useState("");
   const [pass, setPass]   = useState("");
   const [trade, setTrade] = useState("");
+  const [ninValue, setNinValue] = useState("");
 
   const ninData = ninState?.ninData;
 
@@ -289,31 +290,48 @@ export default function SignUpForm({ initialRole }: Props) {
       {/* ── Step 2: NIN verification (artisans only) ──────────────── */}
       {step === 2 && (
         <>
-          {/* Back + progress */}
-          <div className="flex items-center justify-between mb-5">
+          {/* Back + step progress dots */}
+          <div className="flex items-center justify-between mb-6">
             <button
               type="button"
               onClick={handleBack}
-              className="inline-flex items-center gap-1.5 text-xs font-medium text-stone-400 hover:text-stone-700 transition-colors"
+              className="inline-flex items-center gap-1.5 text-xs font-medium text-stone-400 hover:text-stone-700 transition-colors duration-150"
             >
               <svg viewBox="0 0 16 16" className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d="M10 3L5 8l5 5" />
               </svg>
               Back
             </button>
-            <span className="text-xs text-stone-400 font-medium">Step 2 of 2</span>
+            <div className="flex items-center gap-1.5" aria-label="Step 2 of 2">
+              <div className="w-8 h-[3px] rounded-full bg-stone-200" />
+              <div className="w-8 h-[3px] rounded-full" style={{ background: "#d97706" }} />
+            </div>
           </div>
 
-          <div className="mb-5">
-            <h2 className="font-display text-[1.4rem] text-stone-900 leading-tight mb-1">Identity Verification</h2>
-            <p className="text-sm text-stone-500">
-              Enter your 11-digit NIN. We&apos;ll look up your NIMC record for you to confirm before your account is created.
+          {/* Section header */}
+          <div className="mb-6">
+            <div
+              className="w-11 h-11 rounded-xl flex items-center justify-center mb-3.5"
+              style={{ background: "rgba(217,119,6,0.08)" }}
+            >
+              <svg viewBox="0 0 20 20" fill="none" className="w-5 h-5" stroke="#d97706" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <rect x="2" y="4" width="16" height="12" rx="2" />
+                <circle cx="7" cy="9.5" r="2" />
+                <path d="M11 8.5h4M11 11h3" />
+                <path d="M3.5 16c0-1.5 1.6-2.5 3.5-2.5s3.5 1 3.5 2.5" />
+              </svg>
+            </div>
+            <h2 className="font-display text-[1.4rem] text-stone-900 leading-tight mb-1">
+              Verify your identity
+            </h2>
+            <p className="text-sm text-stone-500 leading-relaxed">
+              Your 11-digit NIN is checked against the NIMC database. Only you can see this information.
             </p>
           </div>
 
           {/* NIN lookup form — reset on key change */}
           {!ninData && (
-            <form key={ninLookupKey} action={ninAction} className="space-y-4">
+            <form key={ninLookupKey} action={ninAction} className="space-y-5">
               {ninState?.error && (
                 <div
                   className="flex items-start gap-2.5 rounded-xl px-4 py-3.5 text-sm"
@@ -327,77 +345,202 @@ export default function SignUpForm({ initialRole }: Props) {
                 </div>
               )}
 
-              <div className="space-y-1.5">
-                <label htmlFor="nin" className="block text-sm font-medium text-stone-700">
-                  National Identity Number (NIN)
-                </label>
-                <input
-                  id="nin"
-                  name="nin"
-                  type="tel"
-                  inputMode="numeric"
-                  maxLength={11}
-                  pattern="\d{11}"
-                  required
-                  placeholder="e.g. 12345678901"
-                  className="w-full px-4 py-3 rounded-xl border border-stone-200 bg-white text-stone-900 text-sm placeholder:text-stone-400 focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-100 transition-colors duration-150 tracking-widest"
-                />
-                <p className="text-xs text-stone-400">11 digits — no spaces or dashes</p>
+              {/* NIN input */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label htmlFor="nin" className="text-sm font-medium text-stone-700">
+                    National Identity Number (NIN)
+                  </label>
+                  <span
+                    className="text-xs font-mono tabular-nums transition-colors duration-150"
+                    style={{ color: ninValue.length === 11 ? "#059669" : "#a8a29e" }}
+                    aria-live="polite"
+                    aria-label={`${ninValue.length} of 11 digits entered`}
+                  >
+                    {ninValue.length}/11
+                  </span>
+                </div>
+
+                <div className="relative">
+                  <div className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" aria-hidden="true">
+                    <svg viewBox="0 0 20 20" fill="none" className="w-4 h-4" stroke="#d1cdc8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="2" y="4" width="16" height="12" rx="2" />
+                      <circle cx="7" cy="9.5" r="2" />
+                      <path d="M11 8.5h4M11 11h3" />
+                    </svg>
+                  </div>
+                  <input
+                    id="nin"
+                    name="nin"
+                    type="tel"
+                    inputMode="numeric"
+                    maxLength={11}
+                    required
+                    placeholder="00000000000"
+                    value={ninValue}
+                    onChange={(e) => setNinValue(e.target.value.replace(/\D/g, "").slice(0, 11))}
+                    className="w-full pl-10 pr-4 py-3.5 rounded-xl border bg-white text-stone-900 text-base placeholder:text-stone-300 focus:outline-none focus:ring-2 focus:ring-amber-100 transition-colors duration-150 tracking-[0.18em] font-mono"
+                    style={{
+                      borderColor: ninValue.length === 11 ? "rgba(16,185,129,0.4)" : "rgba(0,0,0,0.12)",
+                    }}
+                    onFocus={(e) => { e.currentTarget.style.borderColor = "#d97706"; }}
+                    onBlur={(e) => {
+                      e.currentTarget.style.borderColor = ninValue.length === 11
+                        ? "rgba(16,185,129,0.4)"
+                        : "rgba(0,0,0,0.12)";
+                    }}
+                  />
+                </div>
+
+                {/* 11-segment progress bar */}
+                <div className="flex gap-[3px]" aria-hidden="true">
+                  {Array.from({ length: 11 }).map((_, i) => (
+                    <div
+                      key={i}
+                      className="flex-1 h-[3px] rounded-full transition-all duration-150"
+                      style={{
+                        background:
+                          i < ninValue.length
+                            ? ninValue.length === 11
+                              ? "#10b981"
+                              : "#d97706"
+                            : "rgba(0,0,0,0.07)",
+                      }}
+                    />
+                  ))}
+                </div>
+
+                <p className="text-xs text-stone-400 flex items-center gap-1.5">
+                  <svg viewBox="0 0 12 12" className="w-3 h-3 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" aria-hidden="true">
+                    <rect x="2" y="5.5" width="8" height="5.5" rx="1" />
+                    <path d="M4 5.5V4a2 2 0 0 1 4 0v1.5" />
+                  </svg>
+                  Encrypted · Only used to verify your identity
+                </p>
               </div>
 
               <button
                 type="submit"
-                disabled={isLookingUp}
-                className="w-full inline-flex items-center justify-center gap-2 font-semibold text-sm text-white py-3.5 rounded-xl transition-all duration-200 hover:-translate-y-px disabled:opacity-60 disabled:cursor-not-allowed disabled:translate-y-0"
+                disabled={isLookingUp || ninValue.length !== 11}
+                className="w-full inline-flex items-center justify-center gap-2 font-semibold text-sm text-white py-3.5 rounded-xl transition-all duration-200 hover:enabled:-translate-y-px disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{
                   background: "linear-gradient(135deg, #d97706 0%, #b45309 100%)",
-                  boxShadow: "0 4px 16px rgba(180,83,9,0.28), 0 1px 3px rgba(0,0,0,0.1)",
+                  boxShadow:
+                    ninValue.length === 11 && !isLookingUp
+                      ? "0 4px 16px rgba(180,83,9,0.28), 0 1px 3px rgba(0,0,0,0.1)"
+                      : "none",
                 }}
               >
-                {isLookingUp ? <><Spinner /> Looking up…</> : "Look up NIN"}
+                {isLookingUp ? (
+                  <>
+                    <Spinner />
+                    Looking up NIMC record…
+                  </>
+                ) : (
+                  "Look up NIN"
+                )}
               </button>
             </form>
           )}
 
-          {/* NIMC profile card — shown after successful lookup */}
+          {/* NIMC identity card — shown after successful lookup */}
           {ninData && (
-            <div className="space-y-5">
+            <div className="space-y-4">
+              {/* Success chip */}
               <div
-                className="rounded-2xl p-5 space-y-4"
-                style={{ background: "rgba(16,185,129,0.04)", border: "1px solid rgba(16,185,129,0.18)" }}
+                className="flex items-center gap-2 px-3 py-2.5 rounded-xl"
+                style={{ background: "rgba(16,185,129,0.07)", border: "1px solid rgba(16,185,129,0.2)" }}
               >
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                  <p className="text-xs font-semibold text-emerald-700 uppercase tracking-wider">NIMC record found</p>
-                </div>
+                <span
+                  className="w-5 h-5 rounded-full flex items-center justify-center shrink-0"
+                  style={{ background: "#10b981" }}
+                >
+                  <svg viewBox="0 0 10 10" className="w-2.5 h-2.5" fill="none" aria-hidden="true">
+                    <path d="M1.5 5.5l2 2 5-5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </span>
+                <p className="text-xs font-semibold text-emerald-800">Record found in NIMC database</p>
+              </div>
 
-                <div className="flex items-start gap-4">
-                  {/* Avatar */}
-                  <div
-                    className="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 text-lg font-bold text-white"
-                    style={{ background: "linear-gradient(135deg, #d97706 0%, #b45309 100%)" }}
-                  >
-                    {getInitials(ninData.firstName, ninData.lastName)}
+              {/* Dark identity card */}
+              <div
+                className="rounded-2xl overflow-hidden"
+                style={{
+                  background: "linear-gradient(145deg, #1c1917 0%, #292524 60%, #1c1917 100%)",
+                  border: "1px solid rgba(255,255,255,0.07)",
+                  boxShadow: "0 8px 32px rgba(0,0,0,0.22), 0 1px 0 rgba(255,255,255,0.05) inset",
+                }}
+              >
+                {/* Amber stripe */}
+                <div
+                  className="h-[3px] w-full"
+                  style={{ background: "linear-gradient(90deg, #b45309 0%, #f59e0b 50%, #b45309 100%)" }}
+                />
+
+                <div className="p-5 space-y-4">
+                  {/* Avatar + name */}
+                  <div className="flex items-center gap-3.5">
+                    <div
+                      className="w-14 h-14 rounded-xl flex items-center justify-center shrink-0 text-lg font-bold text-white"
+                      style={{ background: "linear-gradient(135deg, #d97706 0%, #b45309 100%)" }}
+                      aria-hidden="true"
+                    >
+                      {getInitials(ninData.firstName, ninData.lastName)}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-base font-bold text-white leading-snug truncate">
+                        {[ninData.firstName, ninData.middleName, ninData.lastName].filter(Boolean).join(" ")}
+                      </p>
+                      <div className="flex items-center gap-1.5 mt-1">
+                        <svg viewBox="0 0 14 14" className="w-3.5 h-3.5 shrink-0" fill="none" stroke="#34d399" strokeWidth="1.3" strokeLinejoin="round" aria-hidden="true">
+                          <path d="M7 1L1.5 3.5v4c0 3 2.5 5.2 5.5 5.8 3-.6 5.5-2.8 5.5-5.8v-4L7 1z" />
+                          <path d="M4.5 7l1.5 1.5 3.5-3.5" strokeLinecap="round" />
+                        </svg>
+                        <span className="text-[11px] font-semibold" style={{ color: "#34d399" }}>NIMC Verified</span>
+                      </div>
+                    </div>
                   </div>
 
-                  {/* Details */}
-                  <div className="flex-1 min-w-0 space-y-1.5">
-                    <p className="text-base font-bold text-stone-900 leading-tight">
-                      {[ninData.firstName, ninData.middleName, ninData.lastName].filter(Boolean).join(" ")}
-                    </p>
-                    <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-stone-500">
-                      <span>{ninData.phoneNumber}</span>
-                      <span>Age {calcAge(ninData.dateOfBirth)}</span>
-                      <span>{ninData.location}</span>
-                    </div>
-                    <p className="text-xs font-mono text-stone-400">
-                      NIN: {ninData.nin.replace(/(\d{3})(\d{4})(\d{4})/, "$1 $2 $3")}
-                    </p>
+                  {/* Detail grid */}
+                  <div className="grid grid-cols-2 gap-2">
+                    {[
+                      {
+                        label: "Date of birth",
+                        value: ninData.dateOfBirth
+                          ? new Date(ninData.dateOfBirth).toLocaleDateString("en-NG", { day: "numeric", month: "short", year: "numeric" })
+                          : "—",
+                      },
+                      { label: "Age", value: calcAge(ninData.dateOfBirth) },
+                      { label: "Phone", value: ninData.phoneNumber || "—" },
+                      { label: "Location", value: ninData.location || "—" },
+                    ].map(({ label, value }) => (
+                      <div
+                        key={label}
+                        className="rounded-xl px-3 py-2.5"
+                        style={{ background: "rgba(255,255,255,0.06)" }}
+                      >
+                        <p className="text-[10px] font-semibold uppercase tracking-wider mb-0.5" style={{ color: "#6b6460" }}>
+                          {label}
+                        </p>
+                        <p className="text-sm text-white font-medium truncate">{value}</p>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* NIN row */}
+                  <div
+                    className="flex items-center justify-between px-3 py-2.5 rounded-xl"
+                    style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}
+                  >
+                    <span className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: "#6b6460" }}>NIN</span>
+                    <span className="text-sm font-mono" style={{ color: "#d6d3d1", letterSpacing: "0.15em" }}>
+                      {ninData.nin.replace(/(\d{3})(\d{4})(\d{4})/, "$1 $2 $3")}
+                    </span>
                   </div>
                 </div>
               </div>
 
-              {/* Confirm — triggers the final signup submit */}
+              {/* Confirm form */}
               <form action={formAction}>
                 <input type="hidden" name="role" value="worker" />
                 <input type="hidden" name="name" value={[ninData.firstName, ninData.lastName].filter(Boolean).join(" ")} />
@@ -415,7 +558,7 @@ export default function SignUpForm({ initialRole }: Props) {
                     boxShadow: "0 4px 16px rgba(5,150,105,0.28), 0 1px 3px rgba(0,0,0,0.1)",
                   }}
                 >
-                  {isPending ? <><Spinner /> Creating account…</> : "Yes, this is me — create my account"}
+                  {isPending ? <><Spinner />Creating account…</> : "Yes, this is me — create my account"}
                 </button>
               </form>
 
@@ -435,9 +578,9 @@ export default function SignUpForm({ initialRole }: Props) {
               <button
                 type="button"
                 onClick={handleBack}
-                className="w-full text-sm text-stone-500 hover:text-stone-800 py-2 transition-colors"
+                className="w-full text-sm text-stone-400 hover:text-stone-700 py-2.5 transition-colors duration-150"
               >
-                That&apos;s not me — re-enter NIN
+                That&apos;s not me — enter a different NIN
               </button>
             </div>
           )}
