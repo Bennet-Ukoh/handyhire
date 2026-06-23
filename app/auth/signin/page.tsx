@@ -5,11 +5,6 @@ export const metadata: Metadata = {
   title: "Sign in — HandyHire",
 };
 
-interface Props {
-  searchParams: Promise<{ registered?: string }>;
-}
-
-export default async function SignInPage({ searchParams }: Props) {
-  const { registered } = await searchParams;
-  return <SignInForm registered={registered === "true"} />;
+export default function SignInPage() {
+  return <SignInForm />;
 }

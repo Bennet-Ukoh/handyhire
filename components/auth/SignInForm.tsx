@@ -34,11 +34,7 @@ function Spinner() {
   );
 }
 
-interface Props {
-  registered?: boolean;
-}
-
-export default function SignInForm({ registered }: Props) {
+export default function SignInForm() {
   const [state, formAction, isPending] = useActionState<ActionState | null, FormData>(
     signInAction,
     null
@@ -70,24 +66,6 @@ export default function SignInForm({ registered }: Props) {
           Sign in to your HandyHire account
         </p>
       </div>
-
-      {/* Registration success banner */}
-      {registered && !state?.error && (
-        <div
-          className="flex items-start gap-2.5 rounded-xl px-4 py-3.5 mb-5 text-sm"
-          role="status"
-          style={{
-            background: "rgba(16,185,129,0.06)",
-            border: "1px solid rgba(16,185,129,0.22)",
-            color: "#065f46",
-          }}
-        >
-          <svg viewBox="0 0 16 16" className="w-4 h-4 shrink-0 mt-0.5" fill="currentColor" aria-hidden="true">
-            <path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zm3.25 5.25-4 4a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 1 1 1.06-1.06l1.47 1.47 3.47-3.47a.75.75 0 1 1 1.06 1.06z" />
-          </svg>
-          Account created! Sign in below to continue.
-        </div>
-      )}
 
       {/* Error banner */}
       {state?.error && (

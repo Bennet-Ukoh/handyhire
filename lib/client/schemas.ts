@@ -46,6 +46,11 @@ export const postJobSchema = z
 export type PostJobInput = z.infer<typeof postJobSchema>;
 
 export const clientProfileSchema = z.object({
+  fullName: z
+    .string()
+    .min(2, "Enter your full name")
+    .max(100, "Name is too long")
+    .optional(),
   location: z.string().min(2, "Enter your city or area").max(100),
   phone: z
     .string()

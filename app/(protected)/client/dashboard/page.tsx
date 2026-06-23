@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth/session";
 import { getClientProfile } from "@/lib/client/service";
 import ClientStatsRow from "@/components/client/ClientStatsRow";
 import JobsPanel from "@/components/client/JobsPanel";
 import QuotesInbox from "@/components/client/QuotesInbox";
-import ProfileIncompleteBanner from "@/components/client/ProfileIncompleteBanner";
 
 export const metadata: Metadata = { title: "Client Dashboard — HandyHire" };
 
@@ -107,17 +107,17 @@ export default async function ClientDashboardPage() {
   const session = await getSession();
   const profile = await getClientProfile(session!.userId);
 
+  if (!profile.profileComplete) {
+    redirect("/client/profile/setup");
+  }
+
   const firstName = profile.name.split(" ")[0];
   const hasActivity = profile.recentJobs.length > 0;
   const pendingQuotes = profile.receivedQuotes.filter((q) => q.status === "pending");
   const hasStats = profile.stats.jobsPosted > 0;
-  const profileComplete = profile.profileComplete;
 
   return (
     <div className="space-y-7">
-
-      {/* ── Profile incomplete banner ────────────────────────────────── */}
-      {!profileComplete && <ProfileIncompleteBanner />}
 
       {/* ── Welcome ─────────────────────────────────────────────────── */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">

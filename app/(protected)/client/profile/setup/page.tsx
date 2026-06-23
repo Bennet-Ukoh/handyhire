@@ -14,13 +14,12 @@ export default async function ProfileSetupPage({
   const session = await getSession();
   const { from } = await searchParams;
 
-  // Already complete — send them on their way
   if (isClientProfileComplete(session!.userId)) {
     redirect(from ?? "/client/dashboard");
   }
 
   return (
-    <div className="min-h-[60vh] flex items-start justify-center pt-4 pb-12">
+    <div className="min-h-[70vh] flex items-center justify-center py-10 px-4">
       <div className="w-full max-w-md">
         <ProfileSetupForm from={from} />
       </div>

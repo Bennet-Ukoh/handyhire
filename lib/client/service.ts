@@ -10,6 +10,7 @@ import { findJobsByClientId } from "./mock-store";
 import { getStoredClientProfile, isClientProfileComplete } from "./profile-store";
 import { findQuotesByJobId } from "@/lib/shared/quote-store";
 import { getVerification } from "@/lib/worker/verification-store";
+import { findById } from "@/lib/auth/mock-store";
 
 function isWorkerVerified(workerId: string): boolean {
   const v = getVerification(workerId);
@@ -154,9 +155,15 @@ export async function getClientProfile(userId: string): Promise<ClientProfile> {
   await simulateDelay(300);
   const profile = MOCK_PROFILES[userId];
   if (!profile) {
+    const user = findById(userId);
+    const storedProfile = getStoredClientProfile(userId);
     return {
       ...EMPTY_DEFAULT,
       userId,
+      name: user?.name ?? "",
+      email: user?.email ?? "",
+      location: storedProfile?.location,
+      phone: storedProfile?.phone,
       profileComplete: isClientProfileComplete(userId),
     };
   }

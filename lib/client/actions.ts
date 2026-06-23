@@ -1,10 +1,11 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { getSession } from "@/lib/auth/session";
+import { getSession, setSession } from "@/lib/auth/session";
 import { postJobSchema, clientProfileSchema } from "./schemas";
 import { insertJob, findJobById, updateJobStatus } from "./mock-store";
 import { upsertClientProfile } from "./profile-store";
+import { updateUser } from "@/lib/auth/mock-store";
 import {
   findQuoteById,
   updateQuoteStatus,
@@ -156,6 +157,7 @@ export async function updateClientProfileAction(
   }
 
   const raw = {
+    fullName: (formData.get("fullName") as string) || undefined,
     location: formData.get("location"),
     phone: formData.get("phone"),
     from: (formData.get("from") as string) || undefined,
@@ -175,6 +177,11 @@ export async function updateClientProfileAction(
     location: parsed.data.location,
     phone: parsed.data.phone,
   });
+
+  if (parsed.data.fullName) {
+    updateUser(session.userId, { name: parsed.data.fullName });
+    await setSession({ ...session, name: parsed.data.fullName });
+  }
 
   redirect(parsed.data.from ?? "/client/dashboard");
 }

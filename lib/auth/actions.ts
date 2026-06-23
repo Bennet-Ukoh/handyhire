@@ -95,7 +95,19 @@ export async function signUpAction(
     }
   }
 
-  redirect("/auth/signin?registered=true");
+  await setSession({
+    userId: result.user.id,
+    name: result.user.name,
+    email: result.user.email,
+    role: result.user.role,
+    trade: result.user.trade,
+  });
+
+  redirect(
+    parsed.data.role === "client"
+      ? "/client/profile/setup"
+      : ROLE_REDIRECTS[parsed.data.role]
+  );
 }
 
 /* ── Sign Out ─────────────────────────────────────────────────────────── */

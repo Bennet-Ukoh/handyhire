@@ -153,3 +153,11 @@ export function insertUser(user: StoredUser): void {
 export function findAllByRole(role: User["role"]): StoredUser[] {
   return getUsers().filter((u) => u.role === role);
 }
+
+export function updateUser(id: string, changes: Partial<Omit<StoredUser, "id">>): void {
+  const users = getUsers();
+  const idx = users.findIndex((u) => u.id === id);
+  if (idx === -1) return;
+  users[idx] = { ...users[idx], ...changes };
+  persistToFile(users);
+}
